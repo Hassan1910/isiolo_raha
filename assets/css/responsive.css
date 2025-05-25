@@ -1,0 +1,288 @@
+/* Enhanced Mobile Responsiveness for Isiolo Raha Bus Booking System */
+
+/* Base Mobile Improvements */
+@media (max-width: 768px) {
+    /* Typography adjustments */
+    h1 {
+        font-size: 1.75rem !important;
+    }
+    
+    h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Container padding */
+    .container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    /* Form elements */
+    .form-input, 
+    .form-select {
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+        padding: 0.75rem !important;
+    }
+    
+    /* Buttons */
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Card padding */
+    .card, 
+    .bg-white {
+        padding: 1rem !important;
+    }
+    
+    /* Navigation */
+    #main-nav .container {
+        padding: 0.5rem 1rem !important;
+    }
+}
+
+/* Specific Page Improvements */
+
+/* Home Page */
+@media (max-width: 768px) {
+    /* Hero section */
+    .hero {
+        min-height: 400px !important;
+        padding: 2rem 0 !important;
+    }
+    
+    /* Search form */
+    .search-form-container {
+        margin-top: -50px !important;
+        border-radius: 1rem !important;
+    }
+    
+    /* Popular routes */
+    .route-card {
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Features */
+    .feature-box {
+        padding: 1.5rem !important;
+    }
+}
+
+/* Search Results Page */
+@media (max-width: 768px) {
+    /* Journey details */
+    .journey-details {
+        flex-direction: column !important;
+    }
+    
+    /* Bus cards */
+    .bus-card {
+        padding: 1rem !important;
+    }
+    
+    /* Journey info */
+    .journey-info {
+        margin-top: 1rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Quick filters */
+    .quick-filters {
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        padding-bottom: 0.5rem !important;
+    }
+    
+    /* Sort buttons */
+    .sort-btn {
+        font-size: 0.75rem !important;
+        padding: 0.25rem 0.5rem !important;
+    }
+}
+
+/* Seat Selection Page */
+@media (max-width: 768px) {
+    /* Bus layout */
+    .bus-layout {
+        max-width: 100% !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+    
+    /* Trip details */
+    .trip-details {
+        order: 2 !important;
+        margin-top: 1.5rem !important;
+    }
+    
+    /* Seat selection */
+    .seat-selection {
+        order: 1 !important;
+    }
+    
+    /* Seat legend */
+    .seat-legend {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+    }
+    
+    .seat-legend-item {
+        width: 48% !important;
+        margin-bottom: 0.5rem !important;
+    }
+}
+
+/* Passenger Details Page */
+@media (max-width: 768px) {
+    /* Passenger form */
+    .passenger-form {
+        padding: 1rem !important;
+    }
+    
+    /* Trip summary */
+    .trip-summary {
+        margin-bottom: 1.5rem !important;
+    }
+}
+
+/* Booking Confirmation Page */
+@media (max-width: 768px) {
+    /* Receipt */
+    .receipt {
+        padding: 1rem !important;
+    }
+    
+    /* QR code */
+    .qr-container {
+        text-align: center !important;
+    }
+    
+    /* Print button */
+    .print-btn {
+        width: 100% !important;
+        margin-bottom: 1rem !important;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (max-width: 768px) {
+    /* Increase tap target sizes */
+    button, 
+    a, 
+    .form-input, 
+    .form-select,
+    .seat {
+        min-height: 44px !important; /* Apple's recommended minimum */
+    }
+    
+    /* Add spacing between interactive elements */
+    .form-group {
+        margin-bottom: 1.25rem !important;
+    }
+    
+    /* Improve form labels */
+    .form-label {
+        font-size: 0.9rem !important;
+        margin-bottom: 0.5rem !important;
+        display: block !important;
+    }
+    
+    /* Improve select dropdowns */
+    select.form-input {
+        background-position: right 0.75rem center !important;
+        padding-right: 2.5rem !important;
+    }
+}
+
+/* Improved scrolling */
+@media (max-width: 768px) {
+    /* Smooth scrolling */
+    html, body {
+        scroll-behavior: smooth !important;
+    }
+    
+    /* Prevent content jumping */
+    .container {
+        overflow-x: hidden !important;
+    }
+    
+    /* Improve table scrolling */
+    .table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* Improved form validation feedback */
+@media (max-width: 768px) {
+    /* Error messages */
+    .error-message {
+        font-size: 0.8rem !important;
+        padding: 0.5rem !important;
+        margin-top: 0.25rem !important;
+    }
+    
+    /* Success messages */
+    .success-message {
+        font-size: 0.8rem !important;
+        padding: 0.5rem !important;
+    }
+}
+
+/* Improved loading states */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(34, 197, 94, 0.2);
+    border-radius: 50%;
+    border-top-color: #22c55e;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Form button loading state */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    color: transparent !important;
+}
+
+.btn-loading:after {
+    content: '';
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    top: calc(50% - 0.5rem);
+    left: calc(50% - 0.5rem);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.6s linear infinite;
+}

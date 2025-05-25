@@ -1,0 +1,39 @@
+[2025-05-17 13:20:11] [GET] {"reference":"IR9D407196"}
+[2025-05-17 13:20:11] [SESSION] {"user_id":3,"user_email":"hassan@gmail.com","user_name":"Hassan adan","user_role":"user","booking_data":{"schedule_id":161,"selected_seats":"B3","total_amount":"800","passenger_details":[{"seat":"B3","name":"Hassan adan","phone":"0712345678","id_number":"5467845"}],"booking_reference":"IR9D407196"}}
+[2025-05-17 13:20:11] [VERIFICATION] Verifying payment with reference: IR9D407196
+[2025-05-17 14:22:39] [GET] {"reference":"IR9D407196"}
+[2025-05-17 14:22:39] [SESSION] {"user_id":3,"user_email":"hassan@gmail.com","user_name":"Hassan adan","user_role":"user","booking_data":{"schedule_id":161,"selected_seats":"B3","total_amount":"800","passenger_details":[{"seat":"B3","name":"Hassan adan","phone":"0712345678","id_number":"5467845"}],"booking_reference":"IR9D407196"}}
+[2025-05-17 14:22:39] [VERIFICATION] Verifying payment with reference: IR9D407196
+[2025-05-17 14:22:39] [TEST_MODE] Using test mode for verification
+[2025-05-17 14:22:39] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IR9D407196","amount":80000}}
+[2025-05-17 14:22:39] [DB] About to start database transaction
+[2025-05-17 14:22:39] [DB] Transaction started
+[2025-05-17 14:22:39] [DB] Processing passenger: Hassan adan
+[2025-05-17 14:22:39] [DB] Booking inserted with ID: 1
+[2025-05-17 14:22:39] [DB] Payment inserted for booking ID: 1
+[2025-05-17 14:22:39] [DB] About to commit transaction
+[2025-05-17 14:22:39] [DB] Transaction committed successfully
+[2025-05-17 15:56:35] [GET] {"reference":"IRE1642671"}
+[2025-05-17 15:56:35] [SESSION] {"user_id":3,"user_email":"hassan@gmail.com","user_name":"Hassan adan","user_role":"user","booking_data":{"schedule_id":3,"selected_seats":"A3","total_amount":"200","passenger_details":[{"seat":"A3","name":"Hassan adan","phone":"0712345678","id_number":"2345675"}],"booking_reference":"IRE1642671"}}
+[2025-05-17 15:56:35] [VERIFICATION] Verifying payment with reference: IRE1642671
+[2025-05-17 15:56:35] [TEST_MODE] Using test mode for verification
+[2025-05-17 15:56:35] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRE1642671","amount":20000}}
+[2025-05-17 15:56:35] [DB] About to start database transaction
+[2025-05-17 15:56:35] [DB] Transaction started
+[2025-05-17 15:56:35] [DB] Processing passenger: Hassan adan
+[2025-05-17 15:56:35] [DB] Booking inserted with ID: 2
+[2025-05-17 15:56:36] [DB] Payment inserted for booking ID: 2
+[2025-05-17 15:56:36] [DB] About to commit transaction
+[2025-05-17 15:56:36] [DB] Transaction committed successfully
+[2025-05-18 12:19:40] [GET] {"reference":"IR192EBCE5"}
+[2025-05-18 12:19:40] [SESSION] {"user_id":3,"user_email":"hassan@gmail.com","user_name":"Hassan adan","user_role":"user","booking_data":{"schedule_id":61,"selected_seats":"A1","total_amount":"320","passenger_details":[{"seat":"A1","name":"Hassan adan","phone":"0712345678","id_number":"67856"}],"booking_reference":"IR192EBCE5"}}
+[2025-05-18 12:19:40] [VERIFICATION] Verifying payment with reference: IR192EBCE5
+[2025-05-18 12:19:40] [TEST_MODE] Using test mode for verification
+[2025-05-18 12:19:40] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IR192EBCE5","amount":32000}}
+[2025-05-18 12:19:40] [DB] About to start database transaction
+[2025-05-18 12:19:40] [DB] Transaction started
+[2025-05-18 12:19:40] [DB] Processing passenger: Hassan adan
+[2025-05-18 12:19:40] [DB] Booking inserted with ID: 5
+[2025-05-18 12:19:40] [DB] Payment inserted for booking ID: 5
+[2025-05-18 12:19:40] [DB] About to commit transaction
+[2025-05-18 12:19:40] [DB] Transaction committed successfully

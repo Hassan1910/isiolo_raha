@@ -1,0 +1,42 @@
+[2025-05-17 16:52:54] [RENDER] Before success message, booking_created = false
+[2025-05-17 16:53:11] [RENDER] Before success message, booking_created = false
+[2025-05-17 16:53:15] [RENDER] Before success message, booking_created = false
+[2025-05-17 16:53:31] [FORM_DATA] {"schedule_id":"79","selected_seats":"5","passenger_name":"testdmin","passenger_phone":"0783456789","passenger_id_number":"68464846","payment_method":"cash"}
+[2025-05-17 16:53:31] [SESSION_DATA] 
+[2025-05-17 16:53:31] [DB] Starting database transaction
+[2025-05-17 16:53:31] [DB] Transaction started
+[2025-05-17 16:53:31] [DB_ERROR] Error occurred, rolling back transaction: Execute failed: Column 'user_id' cannot be null
+[2025-05-17 16:53:31] [DB_ERROR] Transaction rolled back
+[2025-05-17 16:53:31] [DB_ERROR_TRACE] #0 {main}
+[2025-05-17 16:53:31] [DB_ERROR] Booking created flag set to false
+[2025-05-17 16:53:31] [RENDER] Before success message, booking_created = false
+[2025-05-17 16:55:05] [FORM_DATA] {"schedule_id":"79","selected_seats":"5","passenger_name":"testdmin","passenger_phone":"0783456789","passenger_id_number":"68464846","payment_method":"cash"}
+[2025-05-17 16:55:05] [SESSION_DATA] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin","flash":{"type":"error","message":"Booking not found.","html":false}}
+[2025-05-17 16:55:05] [USER] User ID from session: 1
+[2025-05-17 16:55:05] [DB] Starting database transaction
+[2025-05-17 16:55:05] [DB] Transaction started
+[2025-05-17 16:55:05] [DB] Using user_id: 1 for booking insertion
+[2025-05-17 16:55:05] [DB] About to commit transaction
+[2025-05-17 16:55:05] [DB] Transaction committed successfully
+[2025-05-17 16:55:05] [DB] Booking created flag set to true
+[2025-05-17 16:55:05] [RENDER] Before success message, booking_created = true
+[2025-05-17 16:55:05] [RENDER] Showing success message with booking reference: IR6734D644
+[2025-05-17 16:55:38] [RENDER] Before success message, booking_created = false
+[2025-05-17 16:57:34] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-05-17 16:57:34] [RENDER] Before success message, booking_created = false
+[2025-05-18 08:35:32] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-05-18 08:35:32] [RENDER] Before success message, booking_created = false
+[2025-05-18 08:35:41] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-05-18 08:35:41] [RENDER] Before success message, booking_created = false
+[2025-05-18 08:35:56] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-05-18 08:35:56] [FORM_DATA] {"schedule_id":"108","selected_seats":"9","passenger_name":"qwer","passenger_phone":"0783456789","passenger_id_number":"4567876","payment_method":"paystack"}
+[2025-05-18 08:35:56] [SESSION_DATA] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-05-18 08:35:56] [USER] User ID from session: 1
+[2025-05-18 08:35:56] [DB] Starting database transaction
+[2025-05-18 08:35:56] [DB] Transaction started
+[2025-05-18 08:35:56] [DB] Using user_id: 1 for booking insertion
+[2025-05-18 08:35:56] [DB] About to commit transaction
+[2025-05-18 08:35:56] [DB] Transaction committed successfully
+[2025-05-18 08:35:56] [DB] Booking created flag set to true
+[2025-05-18 08:35:56] [RENDER] Before success message, booking_created = true
+[2025-05-18 08:35:56] [RENDER] Showing success message with booking reference: IR6AA633AB

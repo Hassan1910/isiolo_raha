@@ -1,0 +1,32 @@
+How to Add Testimonial Images
+==============================
+
+To add actual testimonial images to the slider, follow these steps:
+
+1. Prepare your images:
+   - Use square images (1:1 aspect ratio)
+   - Recommended size: 300x300 pixels or larger
+   - Optimize for web (file size < 100KB)
+   - Format: JPG or PNG
+
+2. Name your images according to the testimonial person:
+   - john.jpg - For John Kamau
+   - sarah.jpg - For Sarah Wanjiku
+   - michael.jpg - For Michael Omondi
+   - jane.jpg - For Jane Muthoni
+   - david.jpg - For David Njoroge
+
+3. Place the images in this folder (assets/images/testimonials/)
+
+4. The website will automatically use these images in the testimonial slider.
+
+Note: If an image is missing, the system will display a fallback with the person's initials.
+
+For placeholder images, you can use:
+- https://randomuser.me/api/portraits/men/32.jpg (for John)
+- https://randomuser.me/api/portraits/women/44.jpg (for Sarah)
+- https://randomuser.me/api/portraits/men/22.jpg (for Michael)
+- https://randomuser.me/api/portraits/women/28.jpg (for Jane)
+- https://randomuser.me/api/portraits/men/42.jpg (for David)
+
+Or create your own placeholder images using the provided sarah.html file as a template.
