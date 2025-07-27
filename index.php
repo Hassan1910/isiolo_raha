@@ -8,6 +8,23 @@ require_once 'includes/templates/header.php';
 // Include database connection
 $conn = require_once 'config/database.php';
 
+// Check for group booking flag and display message
+$group_booking_message = '';
+if (isset($_GET['group_booking']) && $_GET['group_booking'] == '1') {
+    $group_booking_message = '<div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-blue-700">
+                    <strong>Group Booking:</strong> To book for a group, please first search for your desired route and select a schedule. Group booking options will be available during the booking process.
+                </p>
+            </div>
+        </div>
+    </div>';
+}
+
 // Get popular routes with additional information
 $sql = "SELECT r.*,
         (SELECT MIN(s.fare) FROM schedules s WHERE s.route_id = r.id) as min_fare,
@@ -24,26 +41,7 @@ if ($result && $result->num_rows > 0) {
 }
 ?>
 
-<!-- Group Booking Banner -->
-<div class="bg-primary-600 text-white py-3 relative overflow-hidden">
-    <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-            <div class="flex items-center mb-2 md:mb-0">
-                <i class="fas fa-users-cog text-2xl mr-3 animate-pulse"></i>
-                <span class="font-medium">NEW! Group Booking Feature Available</span>
-            </div>
-            <a href="group_booking.php" class="bg-white text-primary-700 hover:bg-gray-100 px-4 py-1 rounded-full text-sm font-bold inline-flex items-center transition-all duration-300 transform hover:scale-105">
-                Book for Your Group Now <i class="fas fa-arrow-right ml-2"></i>
-            </a>
-        </div>
-    </div>
-    <!-- Animated Background Elements -->
-    <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-        <div class="absolute top-1/2 left-1/4 w-12 h-12 rounded-full border-2 border-white animate-ping" style="animation-duration: 3s;"></div>
-        <div class="absolute top-1/3 right-1/3 w-8 h-8 rounded-full border-2 border-white animate-ping" style="animation-duration: 2.5s;"></div>
-        <div class="absolute bottom-1/2 right-1/4 w-10 h-10 rounded-full border-2 border-white animate-ping" style="animation-duration: 4s;"></div>
-    </div>
-</div>
+
 
 <!-- Hero Section -->
 <section class="hero relative" style="background-image: url('https://placehold.co/1920x1080/15803d/FFFFFF/png?text=Bus+Travel'); background-size: cover; background-position: center; min-height: 600px; position: relative; overflow: hidden;">
@@ -62,9 +60,7 @@ if ($result && $result->num_rows > 0) {
             <a href="javascript:void(0)" onclick="smoothScrollTo('search-form')" class="bg-white text-primary-700 hover:bg-gray-100 font-bold py-4 px-8 rounded-full inline-block transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">
                 <i class="fas fa-ticket-alt mr-2"></i> Book Your Trip
             </a>
-            <a href="group_booking.php" class="bg-primary-500 text-white hover:bg-primary-600 font-bold py-4 px-8 rounded-full inline-block transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">
-                <i class="fas fa-users mr-2"></i> Group Booking
-            </a>
+
             <a href="routes.php" class="bg-transparent text-white hover:bg-white hover:text-primary-700 font-bold py-4 px-8 rounded-full inline-block transition duration-300 ease-in-out border-2 border-white">
                 <i class="fas fa-route mr-2"></i> Explore Routes
             </a>
@@ -135,6 +131,10 @@ if ($result && $result->num_rows > 0) {
                 <p class="text-gray-600">Book your bus tickets in just a few clicks</p>
                 <div class="w-24 h-1 bg-primary-500 mx-auto mt-4 rounded-full"></div>
             </div>
+
+            <?php if ($group_booking_message): ?>
+                <?php echo $group_booking_message; ?>
+            <?php endif; ?>
 
             <div class="flex justify-center mb-6 rounded-full bg-gray-100 p-1 max-w-md mx-auto">
                 <div class="journey-tab active w-1/2 text-center py-3 px-4 rounded-full cursor-pointer transition-all" id="one-way-tab" onclick="switchJourneyType('one-way')">
@@ -244,9 +244,7 @@ if ($result && $result->num_rows > 0) {
                                 <i class="fas fa-user form-icon" style="color: #16a34a; font-size: 1.25rem;"></i>
                             </div>
                             <select name="passengers" id="passengers" class="form-input pl-14 w-full" style="width: 100%; padding: 0.75rem 1rem 0.75rem 3.5rem; border-radius: 0.5rem; border: 1px solid #e5e7eb; background-color: #f9fafb; transition: all 0.2s; color: #1f2937; appearance: none; background-image: url('data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3e%3c/svg%3e'); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem;">
-                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <option value="<?php echo $i; ?>"><?php echo $i; ?> Passenger<?php echo $i > 1 ? 's' : ''; ?></option>
-                                <?php endfor; ?>
+                                <option value="1">1 Passenger</option>
                             </select>
                         </div>
                     </div>
@@ -259,9 +257,7 @@ if ($result && $result->num_rows > 0) {
                     <p class="mt-4 text-sm text-gray-500">
                         Looking for a specific route? <a href="routes.php" class="text-primary-600 hover:underline font-medium">View all routes</a>
                     </p>
-                    <p class="mt-2 text-sm text-gray-500">
-                        Traveling with a group? <a href="group_booking.php" class="text-primary-600 hover:underline font-medium">Create a group booking</a>
-                    </p>
+
                 </div>
             </form>
         </div>
@@ -909,14 +905,7 @@ if ($result && $result->num_rows > 0) {
                 <span class="absolute inset-0 bg-gradient-to-r from-white via-green-50 to-white bg-size-200 bg-pos-0 group-hover:bg-pos-100 transition-all duration-500"></span>
             </a>
 
-            <!-- Group Booking CTA Button -->
-            <a href="group_booking.php"
-               class="group relative overflow-hidden bg-primary-500 text-white font-bold py-4 px-10 rounded-full inline-flex items-center transition-all duration-300 hover:bg-primary-600 hover:shadow-xl transform hover:scale-105 hover:-translate-y-1">
-                <span class="relative z-10 flex items-center">
-                    <i class="fas fa-users mr-3 text-xl group-hover:animate-bounce-subtle"></i>
-                    <span>Group Booking</span>
-                </span>
-            </a>
+
 
             <!-- Secondary CTA Button with Enhanced Styling -->
             <a href="contact.php"

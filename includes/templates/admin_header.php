@@ -154,10 +154,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <i class="fas fa-ticket-alt mr-1"></i>
                         <span>Bookings</span>
                     </a>
-                    <a href="<?php echo APP_URL; ?>/admin/group_bookings.php" class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors duration-200">
-                        <i class="fas fa-users mr-1"></i>
-                        <span>Group Bookings</span>
-                    </a>
+
                     <a href="<?php echo APP_URL; ?>/admin/schedules.php" class="flex items-center px-3 py-2 rounded-lg hover:bg-primary-600 transition-colors duration-200">
                         <i class="fas fa-calendar-alt mr-1"></i>
                         <span>Schedules</span>
@@ -261,9 +258,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="<?php echo APP_URL; ?>/admin/bookings.php" class="block py-2 px-3 rounded-lg hover:bg-primary-600 transition-colors duration-200 <?php echo $current_page === 'bookings.php' ? 'bg-primary-600 font-bold' : ''; ?>">
                     <i class="fas fa-ticket-alt mr-2"></i> Bookings
                 </a>
-                <a href="<?php echo APP_URL; ?>/admin/group_bookings.php" class="block py-2 px-3 rounded-lg hover:bg-primary-600 transition-colors duration-200 <?php echo $current_page === 'group_bookings.php' ? 'bg-primary-600 font-bold' : ''; ?>">
-                    <i class="fas fa-users mr-2"></i> Group Bookings
-                </a>
+
                 <a href="<?php echo APP_URL; ?>/admin/schedules.php" class="block py-2 px-3 rounded-lg hover:bg-primary-600 transition-colors duration-200 <?php echo $current_page === 'schedules.php' ? 'bg-primary-600 font-bold' : ''; ?>">
                     <i class="fas fa-calendar-alt mr-2"></i> Schedules
                 </a>

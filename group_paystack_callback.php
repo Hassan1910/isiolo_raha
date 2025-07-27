@@ -26,10 +26,10 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Check if booking data exists in session
-if (!isset($_SESSION['booking_data']) || !isset($_SESSION['booking_data']['passenger_details'])) {
+// Check if group booking data exists in session
+if (!isset($_SESSION['group_booking_data']) || !isset($_SESSION['group_booking_data']['passenger_details'])) {
     // Set message
-    setFlashMessage("error", "Please complete the booking process.");
+    setFlashMessage("error", "Please complete the group booking process.");
 
     // Redirect to home page
     header("Location: index.php");
@@ -59,7 +59,7 @@ $conn = require_once 'config/database.php';
 // Check if reference is provided
 if (!isset($_GET['reference'])) {
     setFlashMessage("error", "No payment reference provided.");
-    header("Location: payment.php");
+    header("Location: group_payment.php");
     exit();
 }
 
@@ -86,7 +86,7 @@ try {
         'data' => [
             'status' => 'success',
             'reference' => $reference,
-            'amount' => $_SESSION['booking_data']['total_amount'] * 100
+            'amount' => $_SESSION['group_booking_data']['total_amount'] * 100
         ]
     ];
 
@@ -100,18 +100,17 @@ try {
     setFlashMessage("error", "An error occurred during payment verification: " . $e->getMessage());
 
     // Redirect to payment page
-    header("Location: payment.php");
+    header("Location: group_payment.php");
     exit();
 }
 
-// Get booking data from session
-$booking_data = $_SESSION['booking_data'];
-$schedule_id = $booking_data['schedule_id'];
-$selected_seats = explode(',', $booking_data['selected_seats']);
-$total_amount = $booking_data['total_amount'];
-$passenger_details = $booking_data['passenger_details'];
-$booking_reference = $booking_data['booking_reference'];
-$journey_type = isset($booking_data['journey_type']) ? $booking_data['journey_type'] : 'outbound';
+// Get group booking data from session
+$group_booking_data = $_SESSION['group_booking_data'];
+$schedule_id = $group_booking_data['schedule_id'];
+$selected_seats = explode(',', $group_booking_data['selected_seats']);
+$total_amount = $group_booking_data['total_amount'];
+$passenger_details = $group_booking_data['passenger_details'];
+$booking_reference = $group_booking_data['booking_reference'];
 
 // Get schedule details
 $sql = "SELECT s.id, s.departure_time, s.arrival_time, s.fare, s.status,
@@ -147,8 +146,11 @@ if ($stmt = $conn->prepare($sql)) {
     $stmt->close();
 }
 
-// Check if booking already exists
-$check_sql = "SELECT COUNT(*) FROM bookings WHERE booking_reference = ?";
+// Begin transaction early to prevent race conditions
+$conn->begin_transaction();
+
+// Check if booking already exists with row locking
+$check_sql = "SELECT COUNT(*) FROM bookings WHERE booking_reference = ? FOR UPDATE";
 $check_stmt = $conn->prepare($check_sql);
 $check_stmt->bind_param("s", $booking_reference);
 $check_stmt->execute();
@@ -157,34 +159,38 @@ $check_stmt->fetch();
 $check_stmt->close();
 
 if ($existing_count > 0) {
-    // Booking already exists, redirect to confirmation
+    // Booking already exists, rollback and redirect to confirmation
+    $conn->rollback();
     debug_to_file("Booking already exists with reference: " . $booking_reference, 'DUPLICATE_CHECK');
     setFlashMessage("info", "This booking has already been processed.");
-    header("Location: booking_confirmation.php?reference=" . $booking_reference);
+    header("Location: group_booking_confirmation.php?reference=" . $booking_reference);
     exit();
 }
 
 // Debug database connection
-debug_to_file("About to start database transaction", 'DB');
+debug_to_file("About to process bookings in existing transaction", 'DB');
 
-// Begin transaction
+// Process bookings in transaction
 try {
-    $conn->begin_transaction();
-    debug_to_file("Transaction started", 'DB');
+    debug_to_file("Processing bookings in transaction", 'DB');
 
     // Insert bookings
     foreach ($passenger_details as $passenger) {
         debug_to_file("Processing passenger: " . $passenger['name'], 'DB');
 
-        $sql = "INSERT INTO bookings (booking_reference, user_id, schedule_id, seat_number, passenger_name, passenger_phone, passenger_id_number, amount, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'confirmed')";
+        $sql = "INSERT INTO bookings (booking_reference, user_id, schedule_id, seat_number, passenger_name, passenger_phone, passenger_id_number, passenger_age_group, special_needs, amount, status, group_name, booking_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', ?, NOW())";
 
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new Exception("Prepare failed: " . $conn->error);
         }
 
-        $stmt->bind_param("siissssd", $booking_reference, $_SESSION['user_id'], $schedule_id, $passenger['seat'], $passenger['name'], $passenger['phone'], $passenger['id_number'], $schedule['fare']);
+        $group_name = $group_booking_data['group_name'];
+        $age_group = isset($passenger['age_group']) ? $passenger['age_group'] : 'adult';
+        $special_needs = isset($passenger['special_needs']) ? $passenger['special_needs'] : '';
+        
+        $stmt->bind_param("siisssssds", $booking_reference, $_SESSION['user_id'], $schedule_id, $passenger['seat'], $passenger['name'], $passenger['phone'], $passenger['id_number'], $age_group, $special_needs, $schedule['fare'], $group_name);
 
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
@@ -195,7 +201,7 @@ try {
         $stmt->close();
 
         // Insert payment record
-        $sql = "INSERT INTO payments (booking_id, transaction_reference, amount, payment_method, status, payment_date)
+        $sql = "INSERT INTO payments (booking_reference, transaction_reference, amount, payment_method, payment_status, payment_date)
                 VALUES (?, ?, ?, 'paystack', 'successful', NOW())";
 
         $stmt = $conn->prepare($sql);
@@ -203,18 +209,18 @@ try {
             throw new Exception("Prepare failed: " . $conn->error);
         }
 
-        $stmt->bind_param("isd", $booking_id, $reference, $schedule['fare']);
+        $stmt->bind_param("ssd", $booking_reference, $reference, $schedule['fare']);
 
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
         }
 
-        debug_to_file("Payment inserted for booking ID: " . $booking_id, 'DB');
+        debug_to_file("Payment inserted for booking reference: " . $booking_reference, 'DB');
         $stmt->close();
     }
 
     // Log activity
-    logActivity("Booking", "Booking completed successfully with reference: " . $booking_reference . " via Paystack");
+    logActivity("Booking", "Group booking completed successfully with reference: " . $booking_reference . " via Paystack");
     debug_to_file("About to commit transaction", 'DB');
 
     // Commit transaction
@@ -222,10 +228,10 @@ try {
     debug_to_file("Transaction committed successfully", 'DB');
 
     // Set success message
-    setFlashMessage("success", "Payment successful! Your booking has been confirmed.");
+    setFlashMessage("success", "Payment successful! Your group booking has been confirmed.");
 
     // Redirect to booking confirmation page
-    header("Location: booking_confirmation.php?reference=" . $booking_reference);
+    header("Location: group_booking_confirmation.php?reference=" . $booking_reference);
     exit();
 } catch (Exception $e) {
     // Rollback transaction
@@ -242,11 +248,20 @@ try {
     debug_to_file($e->getTraceAsString(), 'DB_ERROR_TRACE');
     logActivity("Payment", $errorMessage, "error");
 
-    // Set error message
+    // Check if this is a duplicate entry error
+    if (strpos($e->getMessage(), 'Duplicate entry') !== false && strpos($e->getMessage(), 'booking_reference') !== false) {
+        // This booking already exists, redirect to confirmation page
+        debug_to_file("Duplicate booking reference detected, redirecting to confirmation", 'DUPLICATE_HANDLING');
+        setFlashMessage("info", "This booking has already been processed. Redirecting to your booking confirmation.");
+        header("Location: group_booking_confirmation.php?reference=" . $booking_reference);
+        exit();
+    }
+
+    // Set error message for other types of errors
     setFlashMessage("error", "Error processing payment. Please try again or contact support. Error details: " . $e->getMessage());
 
     // Redirect to payment page
-    header("Location: payment.php");
+    header("Location: group_payment.php");
     exit();
 }
 ?>

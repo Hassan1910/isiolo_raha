@@ -171,11 +171,30 @@
 
 /* Custom form styles */
 .form-input {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-sm transition duration-200;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    color: #1f2937;
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
 
 .form-label {
-    @apply block text-sm font-medium text-gray-700 mb-2;
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
 }
 
 .btn-primary {
@@ -675,22 +694,25 @@
     font-size: 1.25rem !important;
 }
 
-input.form-input, select.form-input {
+/* Form input styles - removed conflicting styles */
+.form-input {
     width: 100% !important;
-    padding: 0.75rem 1rem 0.75rem 3.5rem !important;
+    padding: 0.75rem 1rem !important;
     border-radius: 0.5rem !important;
-    border: 1px solid #e5e7eb !important;
-    background-color: #f9fafb !important;
+    border: 1px solid #d1d5db !important;
+    background-color: #ffffff !important;
     transition: all 0.2s !important;
     color: #1f2937 !important;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
 }
 
-input.form-input:focus, select.form-input:focus {
-    border-color: #86efac !important;
-    background-color: white !important;
+.form-input:focus {
+    border-color: #22c55e !important;
+    background-color: #ffffff !important;
     outline: none !important;
-    box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1) !important;
 }
 
 .swap-destinations {
@@ -985,6 +1007,31 @@ select.form-input {
 .form-input:focus {
     @apply ring-2 ring-primary-300 ring-opacity-50 border-primary-300 bg-white;
     box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.1);
+}
+
+/* Password strength indicator */
+.password-strength-indicator {
+    @apply mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200;
+}
+
+.strength-bar {
+    @apply bg-gray-200 rounded-full h-2 mb-2 overflow-hidden;
+}
+
+.strength-fill {
+    @apply h-2 rounded-full transition-all duration-300;
+}
+
+.strength-requirements {
+    @apply text-xs space-y-1;
+}
+
+.requirement {
+    @apply flex items-center space-x-2;
+}
+
+.requirement span {
+    @apply font-bold text-sm;
 }
 
 /* Form error states */

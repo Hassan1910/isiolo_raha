@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize form validation
     initFormValidation();
 
-    // Paystack integration removed
+    // Initialize Paystack payment form
+    initPaystackPayment();
 
     // Initialize scroll animations
     initScrollAnimations();
@@ -353,9 +354,40 @@ function showFormError(message) {
 }
 
 /**
- * Payment integration placeholder
- * Paystack integration has been removed
+ * Initialize Paystack payment form
  */
+function initPaystackPayment() {
+    const paystackForm = document.getElementById('paystack-payment-form');
+    const paystackButton = document.getElementById('paystack-button');
+
+    if (paystackForm && paystackButton) {
+        paystackButton.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const email = paystackForm.querySelector('input[name="email"]').value;
+            const amount = parseFloat(paystackForm.querySelector('input[name="amount"]').value);
+            const reference = paystackForm.querySelector('input[name="reference"]').value;
+            const publicKey = 'pk_test_c7f8306f56b3fe44259a7e8d8a025c3f69e8102b';
+            const currency = 'KES';
+
+            const handler = PaystackPop.setup({
+                key: publicKey,
+                email: email,
+                amount: amount * 100, // Amount in kobo
+                currency: currency,
+                ref: reference,
+                callback: function(response) {
+                    window.location.href = 'paystack_callback.php?reference=' + response.reference;
+                },
+                onClose: function() {
+                    console.log('Payment window closed.');
+                }
+            });
+
+            handler.openIframe();
+        });
+    }
+}
 
 /**
  * Format currency

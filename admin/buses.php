@@ -2,8 +2,21 @@
 // Include session configuration
 require_once '../config/session_config.php';
 
+// Start session
+session_start();
+
 // Include functions
 require_once '../includes/functions.php';
+
+// Check if user is logged in and is admin
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+    // Set message
+    setFlashMessage("error", "You do not have permission to access the admin dashboard.");
+
+    // Redirect to login page
+    header("Location: ../login.php");
+    exit();
+}
 
 // Set page title
 $page_title = "Manage Buses";
@@ -116,7 +129,54 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
     $check_stmt->close();
 
     if ($check_row['count'] > 0) {
-        setFlashMessage("error", "Cannot delete bus because it is used in schedules.");
+        // Option to force delete by updating schedules to use a different bus or mark them as cancelled
+        if (isset($_GET['force']) && $_GET['force'] == 'true') {
+            // Begin transaction
+            $conn->begin_transaction();
+            
+            try {
+                // Get bus details for logging
+                $get_sql = "SELECT name FROM buses WHERE id = ?";
+                $get_stmt = $conn->prepare($get_sql);
+                $get_stmt->bind_param("i", $delete_id);
+                $get_stmt->execute();
+                $get_result = $get_stmt->get_result();
+                $bus = $get_result->fetch_assoc();
+                $get_stmt->close();
+                
+                // Mark affected schedules as cancelled
+                $update_sql = "UPDATE schedules SET status = 'cancelled' WHERE bus_id = ?";
+                $update_stmt = $conn->prepare($update_sql);
+                $update_stmt->bind_param("i", $delete_id);
+                $update_stmt->execute();
+                $update_stmt->close();
+                
+                // Delete bus
+                $sql = "DELETE FROM buses WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $delete_id);
+                $stmt->execute();
+                $stmt->close();
+                
+                // Log activity
+                logActivity("Admin", "Force deleted bus: " . $bus['name'] . " and cancelled related schedules");
+                
+                // Commit transaction
+                $conn->commit();
+                
+                // Set success message
+                setFlashMessage("success", "Bus deleted successfully and related schedules marked as cancelled.");
+            } catch (Exception $e) {
+                // Rollback transaction
+                $conn->rollback();
+                
+                // Set error message
+                setFlashMessage("error", "Error deleting bus: " . $e->getMessage());
+            }
+        } else {
+            // Show error with option to force delete
+            setFlashMessage("error", "Cannot delete bus because it is used in schedules. <a href='buses.php?action=delete&id=" . $delete_id . "&force=true' class='underline text-primary-600 hover:text-primary-800'>Click here</a> to delete anyway and mark related schedules as cancelled.");
+        }
     } else {
         // Begin transaction
         $conn->begin_transaction();

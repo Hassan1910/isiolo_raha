@@ -40,6 +40,7 @@ if (!isset($_SESSION['user_id'])) {
                 $_SESSION['pending_booking'] = [
                     'schedule_id' => $schedule_id,
                     'passengers' => $passengers,
+                    'journey_type' => isset($_GET["journey_type"]) ? trim($_GET["journey_type"]) : "outbound",
                     'return_to' => 'select_seats.php',
                     'timestamp' => time() // Add timestamp for expiration handling
                 ];
@@ -89,7 +90,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $_SESSION['booking_data'] = [
         'schedule_id' => $schedule_id,
         'selected_seats' => $_POST["selected_seats"],
-        'total_amount' => $_POST["total_amount"]
+        'total_amount' => $_POST["total_amount"],
+        'journey_type' => isset($_POST["journey_type"]) ? trim($_POST["journey_type"]) : "outbound"
     ];
 
     // Redirect to passenger details page
@@ -133,6 +135,9 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
     // Get passengers - ensure it's at least 1
     $passengers = isset($_GET["passengers"]) ? max(1, intval($_GET["passengers"])) : 1;
+    
+    // Get journey type
+    $journey_type = isset($_GET["journey_type"]) ? trim($_GET["journey_type"]) : "outbound";
 
     // Get schedule details
     $sql = "SELECT s.id, s.departure_time, s.arrival_time, s.fare, s.status,
@@ -169,7 +174,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     }
 
     // Get booked seats
-    $sql = "SELECT seat_number FROM bookings WHERE schedule_id = ? AND status != 'cancelled'";
+    $sql = "SELECT seat_number FROM bookings WHERE schedule_id = ? AND status IN ('confirmed', 'pending')";
 
     if ($stmt = $conn->prepare($sql)) {
         // Bind variables to the prepared statement as parameters
@@ -425,6 +430,7 @@ require_once 'includes/components/booking_progress.php';
                             <input type="hidden" id="seat_price" value="<?php echo $schedule['fare']; ?>">
                             <input type="hidden" id="max_seats" value="<?php echo $passengers; ?>" data-debug="Passenger count: <?php echo $passengers; ?>">
                             <input type="hidden" name="passengers" id="passengers_input" value="<?php echo $passengers; ?>">
+                            <input type="hidden" name="journey_type" value="<?php echo $journey_type; ?>">
 
                             <!-- Bus Layout -->
                             <div class="relative mx-auto mb-8 max-w-md">
@@ -1557,58 +1563,68 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add click handler
         seat.addEventListener('click', function() {
             const seatNumber = seat.getAttribute('data-seat');
-            console.log('Clicked on seat:', seatNumber);
+            const action = selectedSeats.includes(seatNumber) ? 'deselect' : 'select';
 
-            // If already selected, deselect it
-            if (selectedSeats.includes(seatNumber)) {
-                // Remove from selection
-                selectedSeats = selectedSeats.filter(s => s !== seatNumber);
-
-                // Update UI
-                seat.classList.remove('selected');
-                seat.classList.add('available');
-
-                // Update popup
-                const statusElement = seat.querySelector('.seat-status');
-                if (statusElement) {
-                    statusElement.textContent = 'Available';
-                    statusElement.classList.remove('selected');
-                    statusElement.classList.add('available');
-                }
-
-                console.log('Deselected seat:', seatNumber, 'Now selected:', selectedSeats);
-                showSuccess(`Seat ${seatNumber} deselected`);
-            }
-            // If we can select more seats
-            else if (selectedSeats.length < passengerCount) {
-                // Add to selection
-                selectedSeats.push(seatNumber);
-
-                // Update UI
-                seat.classList.remove('available');
-                seat.classList.add('selected');
-
-                // Update popup
-                const statusElement = seat.querySelector('.seat-status');
-                if (statusElement) {
-                    statusElement.textContent = 'Selected';
-                    statusElement.classList.remove('available');
-                    statusElement.classList.add('selected');
-                }
-
-                console.log('Selected seat:', seatNumber, 'Now selected:', selectedSeats);
-                showSuccess(`Seat ${seatNumber} selected`);
-            }
-            // Can't select more seats
-            else {
+            // Optimistically update UI
+            if (action === 'select' && selectedSeats.length >= passengerCount) {
                 showError(`Maximum ${passengerCount} seat(s) allowed`);
                 seat.classList.add('shake');
                 setTimeout(() => seat.classList.remove('shake'), 500);
-                console.log('Cannot select more than', passengerCount, 'seats');
+                return;
             }
 
-            // Update selection info and continue button
-            updateSelectionDisplay();
+            // Send request to server to reserve/unreserve the seat
+            fetch('create_pending_booking.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    schedule_id: <?php echo $schedule_id; ?>,
+                    seat_number: seatNumber,
+                    action: action
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (action === 'select') {
+                        selectedSeats.push(seatNumber);
+                        seat.classList.remove('available');
+                        seat.classList.add('selected');
+                        showSuccess(data.message);
+                    } else {
+                        selectedSeats = selectedSeats.filter(s => s !== seatNumber);
+                        seat.classList.remove('selected');
+                        seat.classList.add('available');
+                        showSuccess(data.message);
+                    }
+                } else {
+                    showError(data.message);
+                    // Revert UI change if server-side failed
+                    if (action === 'select') {
+                        seat.classList.remove('selected');
+                        seat.classList.add('available');
+                    } else {
+                        seat.classList.remove('available');
+                        seat.classList.add('selected');
+                    }
+                }
+                updateSelectionDisplay();
+            })
+            .catch(error => {
+                showError('An error occurred. Please try again.');
+                console.error('Error:', error);
+                // Revert UI changes on error
+                if (action === 'select') {
+                    seat.classList.remove('selected');
+                    seat.classList.add('available');
+                } else {
+                    seat.classList.remove('available');
+                    seat.classList.add('selected');
+                }
+                updateSelectionDisplay();
+            });
         });
     });
 

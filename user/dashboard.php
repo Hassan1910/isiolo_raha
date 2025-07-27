@@ -585,12 +585,12 @@ $profile_completion = ($filled_fields / count($profile_fields)) * 100;
                                 <span class="text-xs text-blue-500 mt-1">View history</span>
                             </a>
 
-                            <a href="../routes.php" class="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-xl transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-md">
-                                <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center text-purple-600 mb-3 group-hover:scale-110 transition-transform duration-300">
-                                    <i class="fas fa-route text-xl"></i>
+                            <a href="feedback.php" class="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-xl transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-md">
+                                <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center text-green-600 mb-3 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-comments text-xl"></i>
                                 </div>
-                                <span class="font-medium text-purple-700 text-center">Explore Routes</span>
-                                <span class="text-xs text-purple-500 mt-1">Popular destinations</span>
+                                <span class="font-medium text-green-700 text-center">My Feedback</span>
+                                <span class="text-xs text-green-500 mt-1">View responses</span>
                             </a>
 
                             <a href="../contact.php" class="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200 rounded-xl transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-md">

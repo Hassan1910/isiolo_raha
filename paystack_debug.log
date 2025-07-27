@@ -37,3 +37,186 @@
 [2025-05-18 12:19:40] [DB] Payment inserted for booking ID: 5
 [2025-05-18 12:19:40] [DB] About to commit transaction
 [2025-05-18 12:19:40] [DB] Transaction committed successfully
+[2025-06-16 10:18:24] [GET] {"reference":"IR3C8DAE5C"}
+[2025-06-16 10:18:24] [SESSION] {"user_id":3,"user_email":"hassan@gmail.com","user_name":"Hassan adan","user_role":"user","booking_data":{"schedule_id":162,"selected_seats":"A1","total_amount":"8000","passenger_details":[{"seat":"A1","name":"Hassan adan","phone":"0712345678","id_number":"45654766"}],"booking_reference":"IR3C8DAE5C"}}
+[2025-06-16 10:18:24] [VERIFICATION] Verifying payment with reference: IR3C8DAE5C
+[2025-06-16 10:18:24] [TEST_MODE] Using test mode for verification
+[2025-06-16 10:18:24] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IR3C8DAE5C","amount":800000}}
+[2025-06-16 10:18:24] [DB] About to start database transaction
+[2025-06-16 10:18:24] [DB] Transaction started
+[2025-06-16 10:18:24] [DB] Processing passenger: Hassan adan
+[2025-06-16 10:18:24] [DB] Booking inserted with ID: 6
+[2025-06-16 10:18:24] [DB] Payment inserted for booking ID: 6
+[2025-06-16 10:18:24] [DB] About to commit transaction
+[2025-06-16 10:18:24] [DB] Transaction committed successfully
+[2025-06-18 12:39:34] [GET] {"reference":"IR781B092E"}
+[2025-06-18 12:39:34] [SESSION] {"user_id":4,"user_email":"test1@gmail.com","user_name":"Test1 test","user_role":"user","booking_data":{"schedule_id":163,"selected_seats":"A1","total_amount":"1000","passenger_details":[{"seat":"A1","name":"Test1 test","phone":"073-464-6464","id_number":"45735787"}],"booking_reference":"IR781B092E"}}
+[2025-06-18 12:39:34] [VERIFICATION] Verifying payment with reference: IR781B092E
+[2025-06-18 12:39:34] [TEST_MODE] Using test mode for verification
+[2025-06-18 12:39:34] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IR781B092E","amount":100000}}
+[2025-06-18 12:39:34] [DB] About to start database transaction
+[2025-06-18 12:39:34] [DB] Transaction started
+[2025-06-18 12:39:34] [DB] Processing passenger: Test1 test
+[2025-06-18 12:39:34] [DB] Booking inserted with ID: 7
+[2025-06-18 12:39:34] [DB] Payment inserted for booking ID: 7
+[2025-06-18 12:39:34] [DB] About to commit transaction
+[2025-06-18 12:39:34] [DB] Transaction committed successfully
+[2025-07-19 13:43:31] [GET] {"reference":"IR74E7B33C"}
+[2025-07-19 13:43:31] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":164,"selected_seats":"A2,B2,A3","total_amount":"2100","passenger_details":[{"seat":"A2","name":"hassan adan","phone":"0734567765","id_number":"123576573"},{"seat":"B2","name":"test","phone":"0778357456","id_number":"543456554"},{"seat":"A3","name":"test2","phone":"07487545678","id_number":"45678987"}],"booking_reference":"IR74E7B33C"}}
+[2025-07-19 13:43:31] [VERIFICATION] Verifying payment with reference: IR74E7B33C
+[2025-07-19 13:43:31] [TEST_MODE] Using test mode for verification
+[2025-07-19 13:43:31] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IR74E7B33C","amount":210000}}
+[2025-07-19 13:43:31] [DB] About to start database transaction
+[2025-07-19 13:43:31] [DB] Transaction started
+[2025-07-19 13:43:31] [DB] Processing passenger: hassan adan
+[2025-07-19 13:43:31] [DB] Booking inserted with ID: 9
+[2025-07-19 13:43:31] [DB] Payment inserted for booking ID: 9
+[2025-07-19 13:43:31] [DB] Processing passenger: test
+[2025-07-19 13:43:31] [DB_ERROR] Transaction rolled back
+[2025-07-19 13:43:31] [DB_ERROR] Error processing Paystack payment: Execute failed: Duplicate entry 'IR74E7B33C' for key 'booking_reference'
+[2025-07-19 13:43:31] [DB_ERROR_TRACE] #0 {main}
+[2025-07-19 13:45:52] [GET] {"reference":"IRDB8C55FD"}
+[2025-07-19 13:45:52] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":164,"selected_seats":"B5","total_amount":"700","passenger_details":[{"seat":"B5","name":"hassan adan","phone":"0734567765","id_number":"4323454"}],"booking_reference":"IRDB8C55FD"}}
+[2025-07-19 13:45:52] [VERIFICATION] Verifying payment with reference: IRDB8C55FD
+[2025-07-19 13:45:52] [TEST_MODE] Using test mode for verification
+[2025-07-19 13:45:52] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRDB8C55FD","amount":70000}}
+[2025-07-19 13:45:52] [DB] About to start database transaction
+[2025-07-19 13:45:52] [DB] Transaction started
+[2025-07-19 13:45:52] [DB] Processing passenger: hassan adan
+[2025-07-19 13:45:52] [DB] Booking inserted with ID: 11
+[2025-07-19 13:45:52] [DB] Payment inserted for booking ID: 11
+[2025-07-19 13:45:52] [DB] About to commit transaction
+[2025-07-19 13:45:52] [DB] Transaction committed successfully
+[2025-07-19 13:49:36] [GET] {"reference":"IRB35849B8"}
+[2025-07-19 13:49:36] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":164,"selected_seats":"A1,B1","total_amount":"1400","passenger_details":[{"seat":"A1","name":"hassan adan","phone":"0734567765","id_number":"456787"},{"seat":"B1","name":"test23","phone":"0778359456","id_number":"876543"}],"booking_reference":"IRB35849B8"}}
+[2025-07-19 13:49:37] [VERIFICATION] Verifying payment with reference: IRB35849B8
+[2025-07-19 13:49:37] [TEST_MODE] Using test mode for verification
+[2025-07-19 13:49:37] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRB35849B8","amount":140000}}
+[2025-07-19 13:49:37] [DB] About to start database transaction
+[2025-07-19 13:49:37] [DB] Transaction started
+[2025-07-19 13:49:37] [DB] Processing passenger: hassan adan
+[2025-07-19 13:49:37] [DB] Booking inserted with ID: 12
+[2025-07-19 13:49:37] [DB] Payment inserted for booking ID: 12
+[2025-07-19 13:49:37] [DB] Processing passenger: test23
+[2025-07-19 13:49:37] [DB_ERROR] Transaction rolled back
+[2025-07-19 13:49:37] [DB_ERROR] Error processing Paystack payment: Execute failed: Duplicate entry 'IRB35849B8' for key 'booking_reference'
+[2025-07-19 13:49:37] [DB_ERROR_TRACE] #0 {main}
+[2025-07-19 13:54:12] [GET] {"reference":"IRB8E988092"}
+[2025-07-19 13:54:12] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":164,"selected_seats":"C2,D3","total_amount":"1400","passenger_details":[{"seat":"C2","name":"hassan adan","phone":"0734567765","id_number":"4323454"},{"seat":"D3","name":"test23","phone":"0778357456","id_number":"876543"}],"booking_reference":"IRB8E988092"}}
+[2025-07-19 13:54:12] [VERIFICATION] Verifying payment with reference: IRB8E988092
+[2025-07-19 13:54:12] [TEST_MODE] Using test mode for verification
+[2025-07-19 13:54:12] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRB8E988092","amount":140000}}
+[2025-07-19 13:54:12] [DB] About to start database transaction
+[2025-07-19 13:54:12] [DB] Transaction started
+[2025-07-19 13:54:12] [DB] Processing passenger: hassan adan
+[2025-07-19 13:54:12] [DB] Booking inserted with ID: 14
+[2025-07-19 13:54:12] [DB] Payment inserted for booking ID: 14
+[2025-07-19 13:54:12] [DB] Processing passenger: test23
+[2025-07-19 13:54:12] [DB_ERROR] Transaction rolled back
+[2025-07-19 13:54:12] [DB_ERROR] Error processing Paystack payment: Execute failed: Duplicate entry 'IRB8E988092' for key 'booking_reference'
+[2025-07-19 13:54:12] [DB_ERROR_TRACE] #0 {main}
+[2025-07-19 14:01:12] [GET] {"reference":"IRBB807D5C7"}
+[2025-07-19 14:01:12] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":164,"selected_seats":"A3,B3","total_amount":"1400","passenger_details":[{"seat":"A3","name":"hassan adan","phone":"0734567765","id_number":"4323454"},{"seat":"B3","name":"test","phone":"0778357456","id_number":"876543"}],"booking_reference":"IRBB807D5C7"}}
+[2025-07-19 14:01:12] [VERIFICATION] Verifying payment with reference: IRBB807D5C7
+[2025-07-19 14:01:12] [TEST_MODE] Using test mode for verification
+[2025-07-19 14:01:12] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRBB807D5C7","amount":140000}}
+[2025-07-19 14:01:12] [DB] About to start database transaction
+[2025-07-19 14:01:12] [DB] Transaction started
+[2025-07-19 14:01:12] [DB] Processing passenger: hassan adan
+[2025-07-19 14:01:12] [DB] Booking inserted with ID: 16
+[2025-07-19 14:01:12] [DB] Payment inserted for booking ID: 16
+[2025-07-19 14:01:12] [DB] Processing passenger: test
+[2025-07-19 14:01:12] [DB_ERROR] Transaction rolled back
+[2025-07-19 14:01:12] [DB_ERROR] Error processing Paystack payment: Execute failed: Duplicate entry 'IRBB807D5C7' for key 'booking_reference'
+[2025-07-19 14:01:12] [DB_ERROR_TRACE] #0 {main}
+[2025-07-19 14:16:18] [GET] {"reference":"IRBE7A1A913"}
+[2025-07-19 14:16:18] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":164,"selected_seats":"C1,D2","total_amount":"1400","passenger_details":[{"seat":"C1","name":"hassan adan","phone":"0734567765","id_number":"456787"},{"seat":"D2","name":"test","phone":"0778357456","id_number":"876543"}],"booking_reference":"IRBE7A1A913"}}
+[2025-07-19 14:16:18] [VERIFICATION] Verifying payment with reference: IRBE7A1A913
+[2025-07-19 14:16:18] [TEST_MODE] Using test mode for verification
+[2025-07-19 14:16:18] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRBE7A1A913","amount":140000}}
+[2025-07-19 14:16:18] [DB] About to start database transaction
+[2025-07-19 14:16:18] [DB] Transaction started
+[2025-07-19 14:16:18] [DB] Processing passenger: hassan adan
+[2025-07-19 14:16:18] [DB] Booking inserted with ID: 18
+[2025-07-19 14:16:18] [DB] Payment inserted for booking ID: 18
+[2025-07-19 14:16:18] [DB] Processing passenger: test
+[2025-07-19 14:16:18] [DB_ERROR] Transaction rolled back
+[2025-07-19 14:16:18] [DB_ERROR] Error processing Paystack payment: Execute failed: Duplicate entry 'IRBE7A1A913' for key 'booking_reference'
+[2025-07-19 14:16:18] [DB_ERROR_TRACE] #0 {main}
+[2025-07-21 12:30:31] [GET] {"reference":"IRB92C8B161"}
+[2025-07-21 12:30:31] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","group_booking_data":{"schedule_id":166,"group_name":"poiuty","group_size":5,"contact_person":"qwerty","contact_phone":"0734567876","contact_email":"qwerty@gmail.com","special_requirements":"","selected_seats":"34,31,32,29,28","total_amount":"3500","passenger_details":[{"seat":"34","name":"hassan adan","phone":"0734567765","id_number":"345676","age_group":"adult","special_needs":""},{"seat":"31","name":"hassan adan2","phone":"0783456789","id_number":"88765345","age_group":"adult","special_needs":""},{"seat":"32","name":"hassan adan3","phone":"0745678876","id_number":"76544567","age_group":"adult","special_needs":""},{"seat":"29","name":"hassan adan4","phone":"0734567765","id_number":"76543456","age_group":"adult","special_needs":""},{"seat":"28","name":"hassan adan5","phone":"0734567887","id_number":"87645644","age_group":"adult","special_needs":""}],"booking_reference":"IRB92C8B161"}}
+[2025-07-21 12:30:31] [VERIFICATION] Verifying payment with reference: IRB92C8B161
+[2025-07-21 12:30:31] [TEST_MODE] Using test mode for verification
+[2025-07-21 12:30:31] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRB92C8B161","amount":350000}}
+[2025-07-21 12:30:31] [DB] About to start database transaction
+[2025-07-21 12:30:31] [DB] Transaction started
+[2025-07-21 12:30:31] [DB] Processing passenger: hassan adan
+[2025-07-21 12:30:31] [DB] Booking inserted with ID: 43
+[2025-07-21 12:30:31] [DB] Payment inserted for booking ID: 43
+[2025-07-21 12:30:31] [DB] Processing passenger: hassan adan2
+[2025-07-21 12:30:31] [DB_ERROR] Transaction rolled back
+[2025-07-21 12:30:31] [DB_ERROR] Error processing Paystack payment: Execute failed: Duplicate entry 'IRB92C8B161' for key 'booking_reference'
+[2025-07-21 12:30:31] [DB_ERROR_TRACE] #0 {main}
+[2025-07-21 12:49:33] [GET] {"reference":"IRB5F1CF124"}
+[2025-07-21 12:49:33] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","group_booking_data":{"schedule_id":166,"group_name":"test","group_size":5,"contact_person":"test","contact_phone":"07345676456","contact_email":"test@gmail.com","special_requirements":"","selected_seats":"25,26,23,29,28","total_amount":"3500","passenger_details":[{"seat":"25","name":"hassan adan","phone":"0734567765","id_number":"6765432","age_group":"adult","special_needs":""},{"seat":"26","name":"test2","phone":"0734567887","id_number":"2345432","age_group":"adult","special_needs":""},{"seat":"23","name":"test3","phone":"0734568765","id_number":"8763456","age_group":"adult","special_needs":""},{"seat":"29","name":"test4","phone":"0745687654","id_number":"7645676","age_group":"adult","special_needs":""},{"seat":"28","name":"test5","phone":"0745687645","id_number":"6456986","age_group":"adult","special_needs":""}],"booking_reference":"IRB5F1CF124"}}
+[2025-07-21 12:49:33] [VERIFICATION] Verifying payment with reference: IRB5F1CF124
+[2025-07-21 12:49:33] [TEST_MODE] Using test mode for verification
+[2025-07-21 12:49:33] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRB5F1CF124","amount":350000}}
+[2025-07-21 12:49:33] [DB] About to process bookings in existing transaction
+[2025-07-21 12:49:33] [DB] Processing bookings in transaction
+[2025-07-21 12:49:33] [DB] Processing passenger: hassan adan
+[2025-07-21 12:49:33] [DB] Booking inserted with ID: 45
+[2025-07-21 12:49:33] [DB] Payment inserted for booking ID: 45
+[2025-07-21 12:49:33] [DB] Processing passenger: test2
+[2025-07-21 12:49:33] [DB_ERROR] Transaction rolled back
+[2025-07-21 12:49:33] [DB_ERROR] Error processing Paystack payment: Execute failed: Duplicate entry 'IRB5F1CF124' for key 'booking_reference'
+[2025-07-21 12:49:33] [DB_ERROR_TRACE] #0 {main}
+[2025-07-21 12:49:33] [DUPLICATE_HANDLING] Duplicate booking reference detected, redirecting to confirmation
+[2025-07-22 09:34:26] [GET] {"reference":"IRB85DFAEC9"}
+[2025-07-22 09:34:26] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":167,"selected_seats":"A2","total_amount":"900","passenger_details":[{"seat":"A2","name":"hassan adan","phone":"0734567765","id_number":"76543"}],"booking_reference":"IRB85DFAEC9"}}
+[2025-07-22 09:34:26] [VERIFICATION] Verifying payment with reference: IRB85DFAEC9
+[2025-07-22 09:34:26] [TEST_MODE] Using test mode for verification
+[2025-07-22 09:34:26] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRB85DFAEC9","amount":90000}}
+[2025-07-22 09:34:26] [DB] About to start database transaction
+[2025-07-22 09:34:26] [DB] Transaction started
+[2025-07-22 09:34:26] [DB] Processing passenger: hassan adan
+[2025-07-22 09:34:26] [DB] Booking inserted with ID: 47
+[2025-07-22 09:34:26] [DB] Payment inserted for booking ID: 47
+[2025-07-22 09:34:26] [DB] About to commit transaction
+[2025-07-22 09:34:26] [DB] Transaction committed successfully
+[2025-07-22 10:10:16] [GET] {"reference":"IRB55D7F13E"}
+[2025-07-22 10:10:16] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":167,"selected_seats":"B1","total_amount":"900","passenger_details":[{"seat":"B1","name":"hassan adan","phone":"0734567765","id_number":"345676"}],"booking_reference":"IRB55D7F13E"}}
+[2025-07-22 10:10:16] [VERIFICATION] Verifying payment with reference: IRB55D7F13E
+[2025-07-22 10:10:16] [TEST_MODE] Using test mode for verification
+[2025-07-22 10:10:16] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRB55D7F13E","amount":90000}}
+[2025-07-22 10:10:16] [DB] About to start database transaction
+[2025-07-22 10:10:16] [DB] Transaction started
+[2025-07-22 10:10:16] [DB] Processing passenger: hassan adan
+[2025-07-22 10:10:16] [DB] Booking inserted with ID: 50
+[2025-07-22 10:10:16] [DB] Payment inserted for booking ID: 50
+[2025-07-22 10:10:16] [DB] About to commit transaction
+[2025-07-22 10:10:16] [DB] Transaction committed successfully
+[2025-07-25 15:46:12] [GET] {"reference":"IRBBCC20CD8"}
+[2025-07-25 15:46:12] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":169,"selected_seats":"A1","total_amount":"3000","journey_type":"outbound","passenger_details":[{"seat":"A1","name":"hassan adan","phone":"0734567765","id_number":"8765433"}],"booking_reference":"IRBBCC20CD8"}}
+[2025-07-25 15:46:12] [VERIFICATION] Verifying payment with reference: IRBBCC20CD8
+[2025-07-25 15:46:12] [TEST_MODE] Using test mode for verification
+[2025-07-25 15:46:12] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRBBCC20CD8","amount":300000}}
+[2025-07-25 15:46:12] [DB] About to start database transaction
+[2025-07-25 15:46:12] [DB] Transaction started
+[2025-07-25 15:46:12] [DB] Processing passenger: hassan adan
+[2025-07-25 15:46:12] [DB] Booking inserted with ID: 52
+[2025-07-25 15:46:12] [DB] Payment inserted for booking ID: 52
+[2025-07-25 15:46:12] [DB] About to commit transaction
+[2025-07-25 15:46:12] [DB] Transaction committed successfully
+[2025-07-25 15:49:14] [GET] {"reference":"IRB2AFBB5D2"}
+[2025-07-25 15:49:14] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":171,"selected_seats":"A1","total_amount":"3000","journey_type":"return","passenger_details":[{"seat":"A1","name":"hassan adan","phone":"0734567765","id_number":"123456"}],"booking_reference":"IRB2AFBB5D2"}}
+[2025-07-25 15:49:14] [VERIFICATION] Verifying payment with reference: IRB2AFBB5D2
+[2025-07-25 15:49:14] [TEST_MODE] Using test mode for verification
+[2025-07-25 15:49:14] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRB2AFBB5D2","amount":300000}}
+[2025-07-25 15:49:14] [DB] About to start database transaction
+[2025-07-25 15:49:14] [DB] Transaction started
+[2025-07-25 15:49:14] [DB] Processing passenger: hassan adan
+[2025-07-25 15:49:14] [DB] Booking inserted with ID: 54
+[2025-07-25 15:49:14] [DB] Payment inserted for booking ID: 54
+[2025-07-25 15:49:14] [DB] About to commit transaction
+[2025-07-25 15:49:14] [DB] Transaction committed successfully

@@ -101,19 +101,7 @@ $current_admin_page = basename($_SERVER['PHP_SELF']);
                 <?php endif; ?>
             </a>
 
-            <!-- Group Bookings -->
-            <a href="<?php echo APP_URL; ?>/admin/group_bookings.php"
-               class="flex items-center px-4 py-3 rounded-lg transition-all duration-200 <?php echo $current_admin_page === 'group_bookings.php' ? 'bg-primary-100 text-primary-700 shadow-sm' : 'text-gray-700 hover:bg-gray-50 hover:translate-x-1'; ?>">
-                <div class="flex items-center justify-center w-8 h-8 rounded-md <?php echo $current_admin_page === 'group_bookings.php' ? 'bg-primary-200' : 'bg-gray-100'; ?> mr-3">
-                    <i class="fas fa-users <?php echo $current_admin_page === 'group_bookings.php' ? 'text-primary-700' : 'text-gray-500'; ?>"></i>
-                </div>
-                <span class="font-medium">Group Bookings</span>
-                <?php if ($current_admin_page === 'group_bookings.php'): ?>
-                    <span class="ml-auto">
-                        <i class="fas fa-chevron-right text-primary-500 text-xs"></i>
-                    </span>
-                <?php endif; ?>
-            </a>
+
 
             <!-- Users Section -->
             <div class="pt-3 pb-1">

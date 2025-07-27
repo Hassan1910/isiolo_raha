@@ -53,6 +53,7 @@ $selected_seats = explode(',', $booking_data['selected_seats']);
 $total_amount = $booking_data['total_amount'];
 $passenger_details = $booking_data['passenger_details'];
 $booking_reference = $booking_data['booking_reference'];
+$journey_type = isset($booking_data['journey_type']) ? $booking_data['journey_type'] : 'outbound';
 
 // Get schedule details
 $sql = "SELECT s.id, s.departure_time, s.arrival_time, s.fare, s.status,

@@ -63,40 +63,42 @@ $remaining_seats = $capacity % 4;
                     echo '<div class="seat-row">';
                     echo '<div class="row-number">' . $row . '</div>';
                     
-                    // Determine how many seats in this row
-                    $seats_in_row = ($row == $rows && $remaining_seats > 0) ? $remaining_seats : 4;
-                    
+                    // Generate seats for this row (A, B, aisle, C, D)
                     for ($col = 0; $col < 4; $col++) {
-                        // Skip middle seats (aisle)
+                        // Add aisle space between B and C seats
                         if ($col == 2) {
                             echo '<div class="seat aisle"></div>';
+                            continue;
                         }
                         
-                        // Only add actual seats if we haven't reached capacity
-                        if ($col < $seats_in_row || ($col > 1 && $col - 1 < $seats_in_row)) {
-                            // Generate seat number (can be numeric or alphanumeric)
-                            $seat_id = $seat_letters[$col] . $row;
-                            
-                            // Check if seat is booked
-                            $is_booked = in_array($seat_id, $booked_seats);
-                            
-                            // Determine seat class
-                            $seat_class = $is_booked ? 'seat booked' : 'seat available';
-                            
-                            // Add window class for window seats
-                            if ($col == 0 || $col == 3) {
-                                $seat_class .= ' window';
-                            }
-                            
-                            echo '<div class="' . $seat_class . '" data-seat="' . $seat_id . '">';
-                            echo $seat_id;
-                            echo '</div>';
-                            
-                            $seat_number++;
-                        } else {
-                            // Empty space for non-existent seats in the last row
+                        // Calculate actual seat position (0=A, 1=B, 2=C, 3=D)
+                        $actual_col = $col > 2 ? $col - 1 : $col;
+                        
+                        // Generate seat ID
+                        $seat_id = $seat_letters[$actual_col] . $row;
+                        
+                        // Check if we've exceeded capacity
+                        if ($seat_number > $capacity) {
                             echo '<div class="seat-placeholder"></div>';
+                            continue;
                         }
+                        
+                        // Check if seat is booked
+                        $is_booked = in_array($seat_id, $booked_seats);
+                        
+                        // Determine seat class
+                        $seat_class = $is_booked ? 'seat booked' : 'seat available';
+                        
+                        // Add window class for window seats (A and D)
+                        if ($actual_col == 0 || $actual_col == 3) {
+                            $seat_class .= ' window';
+                        }
+                        
+                        echo '<div class="' . $seat_class . '" data-seat="' . $seat_id . '">';
+                        echo $seat_id;
+                        echo '</div>';
+                        
+                        $seat_number++;
                     }
                     
                     echo '</div>'; // End seat-row

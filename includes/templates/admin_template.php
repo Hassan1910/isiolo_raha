@@ -10,10 +10,13 @@ if (session_status() === PHP_SESSION_NONE) {
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     // Set message
-    setFlashMessage("error", "You do not have permission to access the admin dashboard.");
+    if (function_exists('setFlashMessage')) {
+        setFlashMessage("error", "You do not have permission to access the admin dashboard.");
+    }
 
     // Redirect to login page
-    header("Location: " . APP_URL . "/login.php");
+    $redirect_url = defined('APP_URL') ? APP_URL . "/login.php" : "../login.php";
+    header("Location: " . $redirect_url);
     exit();
 }
 
@@ -31,8 +34,24 @@ require_once __DIR__ . '/admin_header.php';
 
         <!-- Main Content -->
         <div class="md:col-span-4">
+            <!-- Flash Messages -->
+            <?php 
+            if (function_exists('displayFlashMessages')) {
+                displayFlashMessages(); 
+            }
+            ?>
+            
             <!-- Page content will be inserted here -->
-            <?php if (isset($admin_content)) echo $admin_content; ?>
+            <?php 
+            if (isset($admin_content) && !empty($admin_content)) {
+                echo $admin_content; 
+            } else {
+                echo '<div class="bg-white rounded-lg shadow p-6">';
+                echo '<h2 class="text-xl font-bold mb-4">Content Loading...</h2>';
+                echo '<p>If this message persists, there may be an issue with the page content.</p>';
+                echo '</div>';
+            }
+            ?>
         </div>
     </div>
 </div>

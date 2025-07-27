@@ -4,13 +4,22 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Include configuration first
+require_once '../config/config.php';
+
 // Include functions
 require_once '../includes/functions.php';
 
 // Check if user is logged in and is admin
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     // Set message
-    setFlashMessage("error", "You do not have permission to access the admin dashboard.");
+    if (function_exists('setFlashMessage')) {
+        setFlashMessage("error", "You do not have permission to access the admin dashboard.");
+    }
 
     // Redirect to login page
     header("Location: ../login.php");
@@ -20,12 +29,20 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 // Set page title
 $page_title = "Reports & Analytics";
 
-// Include database connection
-$conn = require_once '../config/database.php';
+// Include database connection with error handling
+try {
+    $conn = require_once '../config/database.php';
+    if (!$conn || $conn->connect_error) {
+        throw new Exception("Database connection failed: " . ($conn ? $conn->connect_error : "Connection object is null"));
+    }
+} catch (Exception $e) {
+    die("Database Error: " . $e->getMessage() . "<br><a href='debug_reports.php'>Run Debug</a>");
+}
 
 // Initialize variables
 $report_type = isset($_GET['type']) ? $_GET['type'] : 'daily';
-$date_from = isset($_GET['date_from']) ? $_GET['date_from'] : date('Y-m-d');
+// Set default date range to last 30 days to show actual data
+$date_from = isset($_GET['date_from']) ? $_GET['date_from'] : date('Y-m-d', strtotime('-30 days'));
 $date_to = isset($_GET['date_to']) ? $_GET['date_to'] : date('Y-m-d');
 
 // For weekly and monthly reports, adjust the date range if not explicitly set
@@ -122,24 +139,31 @@ switch ($report_type) {
         break;
 }
 
-// Execute query
-if ($stmt = $conn->prepare($sql)) {
-    $stmt->bind_param("ss", $date_from, $date_to);
-    $stmt->execute();
-    $result = $stmt->get_result();
+// Execute query with error handling
+try {
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("ss", $date_from, $date_to);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $report_data[] = $row;
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $report_data[] = $row;
 
-            // Calculate totals
-            $total_bookings += $row['num_bookings'];
-            $total_revenue += $row['revenue'];
-            $total_cancelled += $row['cancelled_bookings'];
+                // Calculate totals
+                $total_bookings += $row['num_bookings'];
+                $total_revenue += $row['revenue'];
+                $total_cancelled += $row['cancelled_bookings'];
+            }
         }
-    }
 
-    $stmt->close();
+        $stmt->close();
+    } else {
+        throw new Exception("Failed to prepare main query: " . $conn->error);
+    }
+} catch (Exception $e) {
+    error_log("Reports Query Error: " . $e->getMessage());
+    // Continue with empty data rather than crashing
 }
 
 // Get top 5 routes for the selected period
@@ -157,22 +181,35 @@ $top_routes_sql = "SELECT
                   LIMIT 5";
 
 $top_routes = [];
-if ($stmt = $conn->prepare($top_routes_sql)) {
-    $stmt->bind_param("ss", $date_from, $date_to);
-    $stmt->execute();
-    $result = $stmt->get_result();
+try {
+    if ($stmt = $conn->prepare($top_routes_sql)) {
+        $stmt->bind_param("ss", $date_from, $date_to);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $top_routes[] = $row;
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $top_routes[] = $row;
+            }
         }
-    }
 
-    $stmt->close();
+        $stmt->close();
+    } else {
+        throw new Exception("Failed to prepare top routes query: " . $conn->error);
+    }
+} catch (Exception $e) {
+    error_log("Top Routes Query Error: " . $e->getMessage());
+    // Continue with empty data rather than crashing
 }
 
-// Log activity
-logActivity("Reports", "Generated " . $report_type . " report for period " . $date_from . " to " . $date_to);
+// Log activity (with error handling)
+try {
+    if (function_exists('logActivity')) {
+        logActivity("Reports", "Generated " . $report_type . " report for period " . $date_from . " to " . $date_to);
+    }
+} catch (Exception $e) {
+    error_log("Activity logging error: " . $e->getMessage());
+}
 
 // Initialize admin content variable
 $admin_content = '';
@@ -269,7 +306,7 @@ ob_start();
 </div>
 
 <!-- Report Summary -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
     <!-- Total Bookings -->
     <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 fade-in">
         <div class="flex items-center justify-between">
@@ -398,55 +435,6 @@ ob_start();
             <div class="flex justify-between items-center">
                 <span class="text-xs text-gray-500">From <?php echo date('M d', strtotime($date_from)); ?> to <?php echo date('M d', strtotime($date_to)); ?></span>
                 <a href="#" class="text-xs text-red-600 hover:text-red-800 font-medium">View Details</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Conversion Rate -->
-    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 fade-in delay-300">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                <div class="p-4 rounded-full bg-purple-100 text-purple-600 mr-4">
-                    <i class="fas fa-chart-pie text-2xl"></i>
-                </div>
-                <div>
-                    <p class="text-gray-500 text-sm font-medium">Conversion Rate</p>
-                    <div class="flex items-baseline">
-                        <?php
-                        // Calculate conversion rate (confirmed bookings / total bookings)
-                        $confirmed_bookings = $total_bookings - $total_cancelled;
-                        $conversion_rate = ($total_bookings > 0) ? round(($confirmed_bookings / $total_bookings) * 100, 1) : 0;
-                        ?>
-                        <p class="text-3xl font-bold text-gray-800"><?php echo $conversion_rate; ?>%</p>
-                        <?php
-                        // This would normally compare with previous period data
-                        $trend = 1; // 1 for up, -1 for down, 0 for no change
-                        $percent = 3.7; // Example percentage
-                        if ($trend > 0):
-                        ?>
-                            <span class="ml-2 text-xs font-medium text-green-600 flex items-center">
-                                <i class="fas fa-arrow-up mr-1"></i> <?php echo $percent; ?>%
-                            </span>
-                        <?php elseif ($trend < 0): ?>
-                            <span class="ml-2 text-xs font-medium text-red-600 flex items-center">
-                                <i class="fas fa-arrow-down mr-1"></i> <?php echo abs($percent); ?>%
-                            </span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <div class="hidden md:block">
-                <div class="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center">
-                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                        <div class="w-8 h-8 rounded-full bg-purple-200"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="mt-4 pt-4 border-t border-gray-100">
-            <div class="flex justify-between items-center">
-                <span class="text-xs text-gray-500">From <?php echo date('M d', strtotime($date_from)); ?> to <?php echo date('M d', strtotime($date_to)); ?></span>
-                <a href="#" class="text-xs text-purple-600 hover:text-purple-800 font-medium">View Details</a>
             </div>
         </div>
     </div>
@@ -1713,7 +1701,22 @@ $admin_content .= <<<HTML
 </div>
 HTML;
 
-// Now include the admin template (which includes header and will display the content)
-require_once '../includes/templates/admin_template.php';
+// Check if admin template exists and include it
+if (file_exists('../includes/templates/admin_template.php')) {
+    require_once '../includes/templates/admin_template.php';
+} else {
+    // Fallback: include header and display content directly
+    if (file_exists('../includes/templates/admin_header.php')) {
+        require_once '../includes/templates/admin_header.php';
+    }
+    
+    echo $admin_content;
+    
+    if (file_exists('../includes/templates/admin_footer.php')) {
+        require_once '../includes/templates/admin_footer.php';
+    } else {
+        echo '</div></body></html>';
+    }
+}
 ?>
 

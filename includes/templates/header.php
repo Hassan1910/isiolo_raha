@@ -185,9 +185,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <div class="hidden md:flex space-x-6 items-center">
                     <a href="<?php echo APP_URL; ?>/index.php" class="nav-link <?php echo $current_page === 'index.php' ? 'active font-semibold' : ''; ?>">Home</a>
                     <a href="<?php echo APP_URL; ?>/routes.php" class="nav-link <?php echo $current_page === 'routes.php' ? 'active font-semibold' : ''; ?>">Routes</a>
-                    <a href="<?php echo APP_URL; ?>/group_booking.php" class="nav-link <?php echo $current_page === 'group_booking.php' ? 'active font-semibold' : ''; ?>">
-                        <i class="fas fa-users mr-1"></i> Group Booking
-                    </a>
                     <a href="<?php echo APP_URL; ?>/about.php" class="nav-link <?php echo $current_page === 'about.php' ? 'active font-semibold' : ''; ?>">About Us</a>
                     <a href="<?php echo APP_URL; ?>/contact.php" class="nav-link <?php echo $current_page === 'contact.php' ? 'active font-semibold' : ''; ?>">Contact</a>
                     <a href="<?php echo APP_URL; ?>/faq.php" class="nav-link <?php echo $current_page === 'faq.php' ? 'active font-semibold' : ''; ?>">FAQ</a>
@@ -246,9 +243,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
                 <a href="<?php echo APP_URL; ?>/routes.php" class="block py-2 <?php echo $current_page === 'routes.php' ? 'font-bold' : ''; ?>">
                     <i class="fas fa-route mr-2"></i> Routes
-                </a>
-                <a href="<?php echo APP_URL; ?>/group_booking.php" class="block py-2 <?php echo $current_page === 'group_booking.php' ? 'font-bold' : ''; ?> bg-primary-600 rounded-md px-3 my-2">
-                    <i class="fas fa-users mr-2"></i> Group Booking
                 </a>
                 <a href="<?php echo APP_URL; ?>/about.php" class="block py-2 <?php echo $current_page === 'about.php' ? 'font-bold' : ''; ?>">
                     <i class="fas fa-info-circle mr-2"></i> About Us

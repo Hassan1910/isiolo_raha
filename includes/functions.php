@@ -103,6 +103,53 @@ function formatDuration($minutes) {
 }
 
 /**
+ * Generate a unique booking reference
+ *
+ * @param mysqli $conn The database connection
+ * @param int $maxAttempts Maximum number of attempts to generate a unique reference
+ * @return string A unique booking reference
+ * @throws Exception If unable to generate a unique reference after max attempts
+ */
+function generateUniqueBookingReference($conn, $maxAttempts = 10) {
+    $attempts = 0;
+    
+    while ($attempts < $maxAttempts) {
+        // Generate a more robust booking reference using multiple entropy sources
+        $timestamp = time();
+        $microseconds = microtime(true);
+        $randomBytes = bin2hex(random_bytes(4)); // 8 character hex string
+        $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+        
+        // Create a unique string combining multiple sources
+        $uniqueString = $timestamp . $microseconds . $randomBytes . $userId . mt_rand(1000, 9999);
+        
+        // Generate the booking reference
+        $bookingReference = 'IRB' . strtoupper(substr(hash('sha256', $uniqueString), 0, 8));
+        
+        // Check if this reference already exists in the database
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM bookings WHERE booking_reference = ?");
+        $stmt->bind_param("s", $bookingReference);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+        
+        // If the reference is unique, return it
+        if ($count == 0) {
+            return $bookingReference;
+        }
+        
+        $attempts++;
+        
+        // Add a small delay to prevent rapid-fire attempts
+        usleep(1000); // 1ms delay
+    }
+    
+    // If we couldn't generate a unique reference after max attempts, throw an exception
+    throw new Exception("Unable to generate unique booking reference after $maxAttempts attempts");
+}
+
+/**
  * Display flash message
  *
  * @param string $type The type of message (success, error, info)
@@ -300,3 +347,4 @@ function timeAgo($timestamp) {
         }
     }
 }
+

@@ -118,6 +118,17 @@ function validateInput(input) {
         isValid = false;
         errorMessage = 'This field is required';
     }
+    // Name validation (first_name, last_name)
+    else if ((input.name === 'first_name' || input.name === 'last_name') && input.value.trim() !== '') {
+        const nameRegex = /^[a-zA-Z\s]+$/;
+        if (!nameRegex.test(input.value.trim())) {
+            isValid = false;
+            errorMessage = 'Name should only contain letters and spaces';
+        } else if (input.value.trim().length < 2) {
+            isValid = false;
+            errorMessage = 'Name must be at least 2 characters long';
+        }
+    }
     // Email validation
     else if (input.type === 'email' && input.value.trim() !== '') {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -128,24 +139,43 @@ function validateInput(input) {
     }
     // Phone validation
     else if (input.type === 'tel' && input.value.trim() !== '') {
-        const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+        const phoneRegex = /^[+]?[0-9\s\-\(\)]+$/;
         if (!phoneRegex.test(input.value.trim())) {
             isValid = false;
-            errorMessage = 'Please enter a valid phone number';
+            errorMessage = 'Phone number should only contain numbers, spaces, hyphens, parentheses, and plus sign';
+        } else {
+            // Clean phone number for length validation
+            const cleanedPhone = input.value.trim().replace(/[^0-9+]/g, '');
+            if (cleanedPhone.length < 10 || cleanedPhone.length > 13) {
+                isValid = false;
+                errorMessage = 'Please enter a valid phone number (10-13 digits)';
+            }
         }
     }
     // Password validation
-    else if (input.type === 'password' && input.dataset.minLength) {
-        const minLength = parseInt(input.dataset.minLength);
-        if (input.value.length < minLength) {
+    else if (input.type === 'password' && input.name === 'password' && input.value.trim() !== '') {
+        const password = input.value.trim();
+        if (password.length < 8) {
             isValid = false;
-            errorMessage = `Password must be at least ${minLength} characters`;
+            errorMessage = 'Password must be at least 8 characters long';
+        } else if (!/(?=.*[a-z])/.test(password)) {
+            isValid = false;
+            errorMessage = 'Password must contain at least one lowercase letter';
+        } else if (!/(?=.*[A-Z])/.test(password)) {
+            isValid = false;
+            errorMessage = 'Password must contain at least one uppercase letter';
+        } else if (!/(?=.*\d)/.test(password)) {
+            isValid = false;
+            errorMessage = 'Password must contain at least one number';
+        } else if (!/(?=.*[@$!%*?&])/.test(password)) {
+            isValid = false;
+            errorMessage = 'Password must contain at least one special character (@$!%*?&)';
         }
     }
     // Password confirmation validation
-    else if (input.type === 'password' && input.dataset.matches) {
-        const matchInput = document.getElementById(input.dataset.matches);
-        if (matchInput && input.value !== matchInput.value) {
+    else if (input.name === 'confirm_password' && input.value.trim() !== '') {
+        const passwordInput = document.querySelector('input[name="password"]');
+        if (passwordInput && input.value !== passwordInput.value) {
             isValid = false;
             errorMessage = 'Passwords do not match';
         }
@@ -164,33 +194,140 @@ function validateInput(input) {
     } else {
         input.classList.remove('border-red-500', 'bg-red-50');
         input.classList.add('border-gray-300');
+/**
+ * Initialize form helpers
+ */
+function initFormHelpers() {
+    // Name fields - only allow letters and spaces
+    const nameInputs = document.querySelectorAll('input[name="first_name"], input[name="last_name"]');
+    nameInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            // Remove any characters that are not letters or spaces
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+        });
+        
+        input.addEventListener('keypress', function(e) {
+            // Prevent typing numbers and special characters
+            const char = String.fromCharCode(e.which);
+            if (!/[a-zA-Z\s]/.test(char)) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    // Phone number field - only allow numbers, spaces, hyphens, parentheses, and plus sign
+    const phoneInputs = document.querySelectorAll('input[type="tel"]');
+    phoneInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            // Remove any characters that are not allowed
+            this.value = this.value.replace(/[^0-9+\s\-\(\)]/g, '');
+        });
+        
+        input.addEventListener('keypress', function(e) {
+            // Prevent typing letters and other special characters
+            const char = String.fromCharCode(e.which);
+            if (!/[0-9+\s\-\(\)]/.test(char)) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    // Password strength indicator
+    const passwordInput = document.querySelector('input[name="password"]');
+    if (passwordInput) {
+        // Create password strength indicator
+        const strengthIndicator = document.createElement('div');
+        strengthIndicator.className = 'password-strength-indicator mt-2';
+        strengthIndicator.innerHTML = `
+            <div class="text-xs text-gray-600 mb-1">Password strength:</div>
+            <div class="strength-bar bg-gray-200 rounded-full h-2 mb-2">
+                <div class="strength-fill bg-red-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="strength-requirements text-xs space-y-1">
+                <div class="requirement" data-requirement="length">
+                    <span class="text-red-500">✗</span> At least 8 characters
+                </div>
+                <div class="requirement" data-requirement="lowercase">
+                    <span class="text-red-500">✗</span> One lowercase letter
+                </div>
+                <div class="requirement" data-requirement="uppercase">
+                    <span class="text-red-500">✗</span> One uppercase letter
+                </div>
+                <div class="requirement" data-requirement="number">
+                    <span class="text-red-500">✗</span> One number
+                </div>
+                <div class="requirement" data-requirement="special">
+                    <span class="text-red-500">✗</span> One special character (@$!%*?&)
+                </div>
+            </div>
+        `;
+        
+        passwordInput.parentNode.appendChild(strengthIndicator);
+        
+        // Update strength indicator on input
+        passwordInput.addEventListener('input', function() {
+            updatePasswordStrength(this.value, strengthIndicator);
+            
+            // Also validate confirm password when password changes
+            const confirmPasswordInput = document.querySelector('input[name="confirm_password"]');
+            if (confirmPasswordInput && confirmPasswordInput.value !== '') {
+                validateInput(confirmPasswordInput);
+            }
+        });
     }
     
-    return isValid;
+    // Real-time validation for confirm password
+    const confirmPasswordInput = document.querySelector('input[name="confirm_password"]');
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            validateInput(this);
+        });
+    }
 }
 
 /**
- * Initialize password toggle functionality
+ * Update password strength indicator
  */
-function initPasswordToggles() {
-    const toggleButtons = document.querySelectorAll('.password-toggle');
+function updatePasswordStrength(password, indicator) {
+    const requirements = {
+        length: password.length >= 8,
+        lowercase: /[a-z]/.test(password),
+        uppercase: /[A-Z]/.test(password),
+        number: /\d/.test(password),
+        special: /[@$!%*?&]/.test(password)
+    };
     
-    toggleButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.dataset.target;
-            const passwordInput = document.getElementById(targetId);
-            
-            if (passwordInput) {
-                // Toggle password visibility
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    this.innerHTML = '<i class="fas fa-eye-slash"></i>';
-                } else {
-                    passwordInput.type = 'password';
-                    this.innerHTML = '<i class="fas fa-eye"></i>';
-                }
-            }
-        });
+    const strengthFill = indicator.querySelector('.strength-fill');
+    const requirementElements = indicator.querySelectorAll('.requirement');
+    
+    // Calculate strength percentage
+    const metRequirements = Object.values(requirements).filter(Boolean).length;
+    const strengthPercentage = (metRequirements / 5) * 100;
+    
+    // Update strength bar
+    strengthFill.style.width = strengthPercentage + '%';
+    
+    // Update color based on strength
+    if (strengthPercentage < 40) {
+        strengthFill.className = 'strength-fill bg-red-500 h-2 rounded-full transition-all duration-300';
+    } else if (strengthPercentage < 80) {
+        strengthFill.className = 'strength-fill bg-yellow-500 h-2 rounded-full transition-all duration-300';
+    } else {
+        strengthFill.className = 'strength-fill bg-green-500 h-2 rounded-full transition-all duration-300';
+    }
+    
+    // Update requirement indicators
+    requirementElements.forEach(element => {
+        const requirement = element.dataset.requirement;
+        const checkmark = element.querySelector('span');
+        
+        if (requirements[requirement]) {
+            checkmark.className = 'text-green-500';
+            checkmark.textContent = '✓';
+        } else {
+            checkmark.className = 'text-red-500';
+            checkmark.textContent = '✗';
+        }
     });
 }
 

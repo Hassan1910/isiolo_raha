@@ -248,7 +248,7 @@ ob_start();
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-xl font-bold mb-4">Filter Bookings</h2>
 
-        <form method="get" action="" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <form method="get" action="" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div>
                 <label for="date_from" class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
                 <input type="date" id="date_from" name="date_from" value="<?php echo $date_from; ?>" class="form-input w-full">
@@ -276,6 +276,20 @@ ob_start();
                     <button type="submit" class="bg-primary-600 hover:bg-primary-500 text-white px-4 rounded-r-md">
                         <i class="fas fa-search"></i>
                     </button>
+                </div>
+            </div>
+
+            <!-- Clear Filters and Loading Indicator -->
+            <div class="flex flex-col justify-end">
+                <div class="flex space-x-2">
+                    <?php if (!empty($status_filter) || !empty($search) || $date_from != date('Y-m-d', strtotime('-30 days')) || $date_to != date('Y-m-d')): ?>
+                        <a href="bookings.php" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-md text-sm flex items-center">
+                            <i class="fas fa-times mr-2"></i> Clear Filters
+                        </a>
+                    <?php endif; ?>
+                    <div id="loadingIndicator" class="hidden bg-blue-600 text-white px-4 py-2 rounded-md text-sm flex items-center">
+                        <i class="fas fa-spinner fa-spin mr-2"></i> Filtering...
+                    </div>
                 </div>
             </div>
         </form>
@@ -597,6 +611,72 @@ require_once '../includes/templates/admin_template.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form when filters change
+    const filterForm = document.querySelector('form[method="get"]');
+    const dateFromInput = document.getElementById('date_from');
+    const dateToInput = document.getElementById('date_to');
+    const statusSelect = document.getElementById('status');
+    const searchInput = document.getElementById('search');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+
+    // Function to validate date range and show loading indicator
+    function validateAndSubmitForm() {
+        const dateFrom = dateFromInput ? dateFromInput.value : '';
+        const dateTo = dateToInput ? dateToInput.value : '';
+        
+        // Validate date range
+        if (dateFrom && dateTo && new Date(dateFrom) > new Date(dateTo)) {
+            alert('"From Date" cannot be later than "To Date". Please check your date selection.');
+            return false;
+        }
+        
+        // Show loading indicator
+        if (loadingIndicator) {
+            loadingIndicator.classList.remove('hidden');
+        }
+        
+        filterForm.submit();
+        return true;
+    }
+
+    // Add event listeners for auto-submit on filter changes
+    if (dateFromInput) {
+        dateFromInput.addEventListener('change', function() {
+            validateAndSubmitForm();
+        });
+    }
+
+    if (dateToInput) {
+        dateToInput.addEventListener('change', function() {
+            validateAndSubmitForm();
+        });
+    }
+
+    if (statusSelect) {
+        statusSelect.addEventListener('change', function() {
+            validateAndSubmitForm();
+        });
+    }
+
+    // For search input, add a small delay to avoid too many requests
+    let searchTimeout;
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                validateAndSubmitForm();
+            }, 1000); // Wait 1 second after user stops typing
+        });
+    }
+
+    // Also validate and show loading indicator when form is submitted manually
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            validateAndSubmitForm();
+        });
+    }
+
     // QR Code Modal Functionality
     const qrCodeModal = document.getElementById('qrCodeModal');
     const qrCodeContainer = document.getElementById('qrCodeContainer');

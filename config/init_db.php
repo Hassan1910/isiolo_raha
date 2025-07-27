@@ -127,11 +127,13 @@ $sql = "CREATE TABLE IF NOT EXISTS feedback (
     email VARCHAR(100) NOT NULL,
     subject VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
+    admin_response TEXT NULL,
+    response_date TIMESTAMP NULL,
     status ENUM('unread', 'read', 'responded') DEFAULT 'unread',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-)";
+)";}]}}
 
 if ($conn->query($sql) === FALSE) {
     die("Error creating feedback table: " . $conn->error);

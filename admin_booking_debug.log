@@ -40,3 +40,41 @@
 [2025-05-18 08:35:56] [DB] Booking created flag set to true
 [2025-05-18 08:35:56] [RENDER] Before success message, booking_created = true
 [2025-05-18 08:35:56] [RENDER] Showing success message with booking reference: IR6AA633AB
+[2025-06-18 11:44:35] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:44:35] [RENDER] Before success message, booking_created = false
+[2025-06-18 11:44:40] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:44:40] [RENDER] Before success message, booking_created = false
+[2025-06-18 11:44:54] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:44:54] [RENDER] Before success message, booking_created = false
+[2025-06-18 11:44:57] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:44:57] [RENDER] Before success message, booking_created = false
+[2025-06-18 11:45:03] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:45:03] [RENDER] Before success message, booking_created = false
+[2025-06-18 11:46:07] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:46:07] [FORM_DATA] {"schedule_id":"163","selected_seats":"2","passenger_name":"test2","passenger_phone":"07345678445","passenger_id_number":"4567876","payment_method":"cash"}
+[2025-06-18 11:46:07] [SESSION_DATA] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:46:07] [USER] User ID from session: 1
+[2025-06-18 11:46:07] [DB] Starting database transaction
+[2025-06-18 11:46:07] [DB] Transaction started
+[2025-06-18 11:46:07] [DB] Using user_id: 1 for booking insertion
+[2025-06-18 11:46:07] [DB] About to commit transaction
+[2025-06-18 11:46:07] [DB] Transaction committed successfully
+[2025-06-18 11:46:07] [DB] Booking created flag set to true
+[2025-06-18 11:46:07] [RENDER] Before success message, booking_created = true
+[2025-06-18 11:46:07] [RENDER] Showing success message with booking reference: IRC721EA1D
+[2025-06-18 11:53:23] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:53:23] [RENDER] Before success message, booking_created = false
+[2025-06-18 11:53:29] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:53:29] [RENDER] Before success message, booking_created = false
+[2025-06-18 11:53:33] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 11:53:33] [RENDER] Before success message, booking_created = false
+[2025-06-18 13:13:58] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 13:13:58] [RENDER] Before success message, booking_created = false
+[2025-06-18 13:14:02] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 13:14:02] [RENDER] Before success message, booking_created = false
+[2025-06-18 13:15:07] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 13:15:07] [RENDER] Before success message, booking_created = false
+[2025-06-18 19:01:18] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-06-18 19:01:18] [RENDER] Before success message, booking_created = false
+[2025-07-17 08:45:17] [SESSION_DATA_START] {"user_id":1,"user_email":"admin@isioloraha.com","user_name":"Admin User","user_role":"admin"}
+[2025-07-17 08:45:18] [RENDER] Before success message, booking_created = false

@@ -63,13 +63,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['send_response'])) {
     if (empty($response)) {
         setFlashMessage("error", "Response cannot be empty.");
     } else {
-        // In a real application, you would send an email here
-        // For now, we'll just update the status to 'responded'
-
-        $sql = "UPDATE feedback SET status = 'responded' WHERE id = ?";
+        // Update feedback with admin response
+        $sql = "UPDATE feedback SET admin_response = ?, response_date = NOW(), status = 'responded' WHERE id = ?";
 
         if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("i", $feedback_id);
+            $stmt->bind_param("si", $response, $feedback_id);
 
             if ($stmt->execute()) {
                 // Log the response

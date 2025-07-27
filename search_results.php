@@ -12,9 +12,10 @@ require_once 'includes/components/booking_progress.php';
 $conn = require_once 'config/database.php';
 
 // Initialize variables
-$origin = $destination = $travel_date = $passengers = "";
-$origin_err = $destination_err = $travel_date_err = "";
+$origin = $destination = $travel_date = $return_date = $passengers = $journey_type = "";
+$origin_err = $destination_err = $travel_date_err = $return_date_err = "";
 $schedules = [];
+$return_schedules = [];
 $search_performed = false;
 
 // Process search parameters
@@ -46,9 +47,25 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
         // Get passengers
         $passengers = isset($_GET["passengers"]) ? intval($_GET["passengers"]) : 1;
+        
+        // Get journey type
+        $journey_type = isset($_GET["journey_type"]) ? trim($_GET["journey_type"]) : "one-way";
+        
+        // Validate return date for round-trip
+        if ($journey_type === "round-trip") {
+            if (empty(trim($_GET["return_date"]))) {
+                $return_date_err = "Please select a return date for round-trip.";
+            } else {
+                $return_date = trim($_GET["return_date"]);
+                // Check if return date is not earlier than travel date
+                if (strtotime($return_date) < strtotime($travel_date)) {
+                    $return_date_err = "Return date cannot be earlier than departure date.";
+                }
+            }
+        }
 
         // Check input errors before searching
-        if (empty($origin_err) && empty($destination_err) && empty($travel_date_err)) {
+        if (empty($origin_err) && empty($destination_err) && empty($travel_date_err) && empty($return_date_err)) {
             // Prepare a select statement
             $sql = "SELECT s.id, s.departure_time, s.arrival_time, s.fare, s.status,
                     r.origin, r.destination, r.distance,
@@ -85,6 +102,42 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
                 // Close statement
                 $stmt->close();
+            }
+            
+            // If round-trip, search for return schedules
+            if ($journey_type === "round-trip" && !empty($return_date)) {
+                $return_sql = "SELECT s.id, s.departure_time, s.arrival_time, s.fare, s.status,
+                        r.origin, r.destination, r.distance,
+                        b.name AS bus_name, b.type AS bus_type, b.capacity,
+                        (SELECT COUNT(*) FROM bookings WHERE schedule_id = s.id AND status != 'cancelled') AS booked_seats
+                        FROM schedules s
+                        JOIN routes r ON s.route_id = r.id
+                        JOIN buses b ON s.bus_id = b.id
+                        WHERE r.origin = ? AND r.destination = ?
+                        AND DATE(s.departure_time) = ?
+                        AND s.status = 'scheduled'
+                        ORDER BY s.departure_time ASC";
+                        
+                if ($return_stmt = $conn->prepare($return_sql)) {
+                    // Bind variables for return journey (swap origin and destination)
+                    $return_stmt->bind_param("sss", $param_destination, $param_origin, $param_return_date);
+                    
+                    // Set parameters for return journey
+                    $param_return_date = $return_date;
+                    
+                    // Execute return journey search
+                    if ($return_stmt->execute()) {
+                        $return_result = $return_stmt->get_result();
+                        
+                        // Fetch return schedules
+                        while ($row = $return_result->fetch_assoc()) {
+                            $return_schedules[] = $row;
+                        }
+                    }
+                    
+                    // Close return statement
+                    $return_stmt->close();
+                }
             }
         }
     } else {
@@ -169,8 +222,315 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
                     </button>
                 </div>
             </div>
+                </div>
+            <?php else: ?>
+                <div class="text-center py-12 px-4">
+                    <div class="relative w-24 h-24 mx-auto mb-6">
+                        <div class="absolute inset-0 bg-gray-200 rounded-full animate-pulse"></div>
+                        <div class="absolute inset-0 flex items-center justify-center text-5xl text-gray-400">
+                            <i class="fas fa-bus-alt"></i>
+                        </div>
+                    </div>
+
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800">No Outbound Buses Found</h3>
+
+                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                        We couldn't find any buses for <span class="font-semibold text-primary-700"><?php echo htmlspecialchars($origin); ?></span> to
+                        <span class="font-semibold text-primary-700"><?php echo htmlspecialchars($destination); ?></span> on
+                        <span class="font-semibold text-primary-700"><?php echo $formatted_travel_date; ?></span>.
+                    </p>
+                </div>
+            <?php endif; ?>
         </div>
-        <?php else: ?>
+
+        <!-- Return Journey Section for Round-trip -->
+        <?php if ($journey_type === 'round-trip'): ?>
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden border-t-4 border-secondary-600 slide-in-right mt-8">
+            <div class="p-4 md:p-6 border-b border-gray-200">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
+                    <h2 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-undo text-secondary-600 mr-2"></i> Return Journey - Available Buses
+                        <?php if (!empty($return_schedules)): ?>
+                            <span class="ml-2 bg-secondary-100 text-secondary-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <?php echo count($return_schedules); ?> Found
+                            </span>
+                        <?php endif; ?>
+                    </h2>
+
+                    <?php if (!empty($return_schedules)): ?>
+                    <div class="mt-2 sm:mt-0 flex items-center text-sm text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Return journey on <?php echo !empty($return_date) ? date('l, F j, Y', strtotime($return_date)) : ''; ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <?php if (!empty($return_schedules)): ?>
+                <div class="divide-y divide-gray-200">
+                    <?php foreach ($return_schedules as $index => $schedule): ?>
+                        <?php
+                        // Calculate duration
+                        $departure = new DateTime($schedule['departure_time']);
+                        $arrival = new DateTime($schedule['arrival_time']);
+                        $duration = $departure->diff($arrival);
+
+                        // Format duration
+                        $duration_str = '';
+                        if ($duration->h > 0) {
+                            $duration_str .= $duration->h . 'h ';
+                        }
+                        $duration_str .= $duration->i . 'm';
+
+                        // Calculate available seats
+                        $available_seats = $schedule['capacity'] - $schedule['booked_seats'];
+
+                        // Set animation delay class based on index
+                        $delay_class = 'delay-' . (($index % 5) + 1) . '00';
+                        $return_index = 'return_' . $index;
+                        ?>
+
+                        <div class="bus-card p-4 sm:p-6 hover:bg-gray-50 transition-all duration-300 cursor-pointer fade-in <?php echo $delay_class; ?> relative"
+                             onclick="toggleBusDetails('<?php echo $return_index; ?>')"
+                             data-price="<?php echo $schedule['fare']; ?>"
+                             data-departure="<?php echo strtotime($schedule['departure_time']); ?>"
+                             data-duration="<?php echo $duration->h * 60 + $duration->i; ?>"
+                             data-type="<?php echo strtolower($schedule['bus_type']); ?>">
+
+                            <?php if (strtolower($schedule['bus_type']) === 'luxury'): ?>
+                            <div class="absolute top-0 right-0 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                                <i class="fas fa-star mr-1"></i> LUXURY
+                            </div>
+                            <?php endif; ?>
+
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                                <!-- Bus Info -->
+                                <div class="flex items-center md:col-span-3">
+                                    <div class="flex-shrink-0 bg-secondary-100 p-3 rounded-full mr-4 relative">
+                                        <i class="text-xl text-secondary-600 fas <?php echo strtolower($schedule['bus_type']) === 'luxury' ? 'fa-bus-alt' : 'fa-bus'; ?>"></i>
+                                        <?php if ($available_seats <= 5 && $available_seats > 0): ?>
+                                        <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-4 w-4 bg-yellow-500"></span>
+                                        </span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-800"><?php echo $schedule['bus_name']; ?></h3>
+                                        <div class="flex items-center">
+                                            <span class="text-sm text-gray-500 mr-2"><?php echo ucfirst($schedule['bus_type']); ?></span>
+                                            <?php if (strtolower($schedule['bus_type']) === 'luxury'): ?>
+                                            <div class="flex">
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                            </div>
+                                            <?php elseif (strtolower($schedule['bus_type']) === 'executive'): ?>
+                                            <div class="flex">
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="far fa-star text-yellow-400 text-xs"></i>
+                                            </div>
+                                            <?php elseif (strtolower($schedule['bus_type']) === 'standard'): ?>
+                                            <div class="flex">
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                                <i class="far fa-star text-yellow-400 text-xs"></i>
+                                                <i class="far fa-star text-yellow-400 text-xs"></i>
+                                            </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Journey Info -->
+                                <div class="md:col-span-6 grid grid-cols-7 gap-1 items-center">
+                                    <!-- Departure -->
+                                    <div class="col-span-2 text-center md:text-left">
+                                        <div class="font-bold text-gray-800 text-lg"><?php echo date('h:i A', strtotime($schedule['departure_time'])); ?></div>
+                                        <div class="text-sm text-gray-500"><?php echo date('D, d M', strtotime($schedule['departure_time'])); ?></div>
+                                        <div class="text-xs text-gray-400 mt-1"><?php echo $schedule['origin']; ?></div>
+                                    </div>
+
+                                    <!-- Duration -->
+                                    <div class="col-span-3 flex flex-col items-center justify-center px-2">
+                                        <div class="text-xs text-gray-500 mb-1 font-medium">
+                                            <i class="far fa-clock mr-1"></i><?php echo $duration_str; ?>
+                                        </div>
+                                        <div class="w-full flex items-center">
+                                            <div class="h-2 w-2 bg-secondary-600 rounded-full"></div>
+                                            <div class="flex-1 h-0.5 border-t-2 border-dashed border-gray-300 mx-1 relative">
+                                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs text-gray-400">
+                                                    <i class="fas fa-bus text-secondary-500"></i>
+                                                </div>
+                                            </div>
+                                            <div class="h-2 w-2 bg-secondary-600 rounded-full"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-400 mt-1"><?php echo round($schedule['distance'], 1); ?> km</div>
+                                    </div>
+
+                                    <!-- Arrival -->
+                                    <div class="col-span-2 text-center md:text-right">
+                                        <div class="font-bold text-gray-800 text-lg"><?php echo date('h:i A', strtotime($schedule['arrival_time'])); ?></div>
+                                        <div class="text-sm text-gray-500"><?php echo date('D, d M', strtotime($schedule['arrival_time'])); ?></div>
+                                        <div class="text-xs text-gray-400 mt-1"><?php echo $schedule['destination']; ?></div>
+                                    </div>
+                                </div>
+
+                                <!-- Fare & Action -->
+                                <div class="md:col-span-3 flex flex-col sm:items-end">
+                                    <div class="text-xl font-bold text-secondary-600 mb-2">
+                                        <?php echo formatCurrency($schedule['fare']); ?>
+                                        <span class="text-xs text-gray-500 font-normal">/person</span>
+                                    </div>
+
+                                    <div class="flex items-center justify-between sm:justify-end w-full">
+                                        <div class="mr-3">
+                                            <?php if ($available_seats > 10): ?>
+                                                <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 flex items-center">
+                                                    <i class="fas fa-check-circle mr-1"></i> <?php echo $available_seats; ?> seats
+                                                </span>
+                                            <?php elseif ($available_seats > 0): ?>
+                                                <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 flex items-center">
+                                                    <i class="fas fa-exclamation-circle mr-1"></i> <?php echo $available_seats; ?> seats left!
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 flex items-center">
+                                                    <i class="fas fa-times-circle mr-1"></i> Fully booked
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <div>
+                                            <i class="fas fa-chevron-down text-gray-400 bus-details-toggle-<?php echo $return_index; ?> transition-transform duration-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bus Details (Hidden by default) -->
+                            <div class="bus-details-<?php echo $return_index; ?> hidden mt-4 pt-4 border-t border-gray-200">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <!-- Bus Features -->
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                            <i class="fas fa-list-ul text-secondary-600 mr-2"></i> Bus Features
+                                        </h4>
+                                        <ul class="text-sm text-gray-600 space-y-1">
+                                            <li class="flex items-center"><i class="fas fa-check text-secondary-500 mr-2"></i> Air Conditioning</li>
+                                            <li class="flex items-center"><i class="fas fa-check text-secondary-500 mr-2"></i> Comfortable Seating</li>
+                                            <?php if (strtolower($schedule['bus_type']) === 'luxury' || strtolower($schedule['bus_type']) === 'executive'): ?>
+                                                <li class="flex items-center"><i class="fas fa-check text-secondary-500 mr-2"></i> Onboard Entertainment</li>
+                                                <li class="flex items-center"><i class="fas fa-check text-secondary-500 mr-2"></i> USB Charging Ports</li>
+                                                <li class="flex items-center"><i class="fas fa-check text-secondary-500 mr-2"></i> Refreshments</li>
+                                            <?php endif; ?>
+                                            <?php if (strtolower($schedule['bus_type']) === 'luxury'): ?>
+                                                <li class="flex items-center"><i class="fas fa-check text-secondary-500 mr-2"></i> Extra Leg Room</li>
+                                                <li class="flex items-center"><i class="fas fa-check text-secondary-500 mr-2"></i> Recliner Seats</li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Boarding Points -->
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                            <i class="fas fa-map-marker-alt text-secondary-600 mr-2"></i> Boarding & Drop Points
+                                        </h4>
+                                        <div class="text-sm text-gray-600">
+                                            <div class="flex items-start mb-2">
+                                                <div class="flex-shrink-0 w-6 h-6 bg-secondary-100 rounded-full flex items-center justify-center mr-2 mt-0.5">
+                                                    <i class="fas fa-arrow-up text-xs text-secondary-600"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold">Boarding: <?php echo $schedule['origin']; ?></p>
+                                                    <p class="text-xs text-gray-500"><?php echo $schedule['origin']; ?> Bus Terminal, <?php echo date('h:i A', strtotime($schedule['departure_time'])); ?></p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start">
+                                                <div class="flex-shrink-0 w-6 h-6 bg-secondary-100 rounded-full flex items-center justify-center mr-2 mt-0.5">
+                                                    <i class="fas fa-arrow-down text-xs text-secondary-600"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold">Drop-off: <?php echo $schedule['destination']; ?></p>
+                                                    <p class="text-xs text-gray-500"><?php echo $schedule['destination']; ?> Bus Terminal, Est. <?php echo date('h:i A', strtotime($schedule['arrival_time'])); ?></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Booking Info -->
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                            <i class="fas fa-info-circle text-secondary-600 mr-2"></i> Booking Information
+                                        </h4>
+                                        <ul class="text-sm text-gray-600 space-y-1 mb-4">
+                                            <li class="flex items-start">
+                                                <i class="fas fa-users text-secondary-500 mr-2 mt-1"></i>
+                                                <span>
+                                                    <span class="font-semibold">Capacity:</span> <?php echo $schedule['capacity']; ?> seats
+                                                </span>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <i class="fas fa-couch text-secondary-500 mr-2 mt-1"></i>
+                                                <span>
+                                                    <span class="font-semibold">Available:</span>
+                                                    <?php echo $available_seats; ?> seats
+                                                </span>
+                                            </li>
+                                            <li class="flex items-start">
+                                                <i class="fas fa-money-bill-wave text-secondary-500 mr-2 mt-1"></i>
+                                                <span>
+                                                    <span class="font-semibold">Total for <?php echo $passengers; ?>:</span>
+                                                    <?php echo formatCurrency($schedule['fare'] * $passengers); ?>
+                                                </span>
+                                            </li>
+                                        </ul>
+
+                                        <?php if ($available_seats >= $passengers): ?>
+                                            <!-- Return Journey Booking Button -->
+                                            <a href="select_seats.php?schedule_id=<?php echo $schedule['id']; ?>&passengers=<?php echo $passengers; ?>&journey_type=return"
+                                               class="select-seats-btn w-full text-center py-3 flex items-center justify-center relative overflow-hidden group mb-3 bg-secondary-600 hover:bg-secondary-700"
+                                               data-schedule-id="<?php echo $schedule['id']; ?>"
+                                               data-passengers="<?php echo $passengers; ?>"
+                                               data-bus-name="<?php echo $schedule['bus_name']; ?>"
+                                               data-bus-type="<?php echo $schedule['bus_type']; ?>"
+                                               data-available-seats="<?php echo $available_seats; ?>"
+                                               data-tooltip="Click to select return journey seats">
+                                                <span class="relative z-10 flex items-center text-white">
+                                                    <i class="fas fa-undo mr-2"></i> Select Return Seats
+                                                </span>
+                                                <span class="absolute inset-0 bg-secondary-600 transform transition-transform duration-300 group-hover:scale-105"></span>
+                                                <span class="absolute right-0 top-0 h-full w-12 flex items-center justify-center bg-secondary-700 text-white text-xs font-bold">
+                                                    <?php echo $available_seats; ?>
+                                                </span>
+                                                <span class="absolute bottom-0 left-0 w-full h-1 bg-secondary-800 transform origin-left transition-transform duration-500 scale-x-0 group-hover:scale-x-100"></span>
+                                            </a>
+                                            
+                                            <?php if (!isset($_SESSION['user_id'])): ?>
+                                            <div class="text-xs text-center mt-2 text-secondary-600">
+                                                <i class="fas fa-info-circle mr-1"></i> You'll be asked to login or register to complete your booking
+                                            </div>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <button class="btn-secondary w-full text-center text-sm py-3 opacity-70 cursor-not-allowed flex items-center justify-center relative overflow-hidden">
+                                                <i class="fas fa-ticket-alt mr-2"></i> Not Available
+                                                <span class="absolute right-0 top-0 h-full w-12 flex items-center justify-center bg-gray-700 text-white text-xs font-bold">
+                                                    0
+                                                </span>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6 text-center">
             <h1 class="text-2xl font-bold mb-4">Search for Bus Tickets</h1>
             <p class="text-gray-600 mb-4">Use the form below to search for available buses</p>
@@ -195,6 +555,19 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
                 </h2>
 
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get" class="space-y-4">
+                    <!-- Journey Type Tabs -->
+                    <div class="mb-4">
+                        <div class="flex bg-gray-100 rounded-lg p-1">
+                            <button type="button" id="filter-one-way-tab" class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-300 <?php echo ($journey_type !== 'round-trip') ? 'bg-white text-primary-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'; ?>" onclick="switchFilterJourneyType('one-way')">
+                                <i class="fas fa-arrow-right mr-2"></i> One Way
+                            </button>
+                            <button type="button" id="filter-round-trip-tab" class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-300 <?php echo ($journey_type === 'round-trip') ? 'bg-white text-primary-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'; ?>" onclick="switchFilterJourneyType('round-trip')">
+                                <i class="fas fa-exchange-alt mr-2"></i> Round Trip
+                            </button>
+                        </div>
+                        <input type="hidden" name="journey_type" id="filter-journey-type" value="<?php echo $journey_type; ?>">
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <!-- Origin -->
                         <div class="form-group hover:shadow-md transition-all duration-300">
@@ -255,6 +628,17 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
                             </div>
                         </div>
 
+                        <!-- Return Date (for round-trip) -->
+                        <div class="form-group hover:shadow-md transition-all duration-300" id="filter-return-date-group" style="<?php echo ($journey_type !== 'round-trip') ? 'display: none;' : ''; ?>">
+                            <label for="return_date" class="form-label">Return Date</label>
+                            <div class="relative">
+                                <div class="form-icon-wrapper">
+                                    <i class="form-icon far fa-calendar-alt text-primary-600"></i>
+                                    <input type="date" name="return_date" id="filter-return-date" class="form-input pl-10" min="<?php echo date('Y-m-d'); ?>" value="<?php echo $return_date; ?>">
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Number of Passengers -->
                         <div class="form-group hover:shadow-md transition-all duration-300">
                             <label for="passengers" class="form-label">Passengers</label>
@@ -268,6 +652,7 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
                                     </select>
                                 </div>
                             </div>
+                            
                         </div>
                     </div>
 
@@ -351,7 +736,12 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
             <div class="p-4 md:p-6 border-b border-gray-200">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
                     <h2 class="text-xl font-bold flex items-center">
-                        <i class="fas fa-bus text-primary-600 mr-2"></i> Available Buses
+                        <i class="fas fa-bus text-primary-600 mr-2"></i> 
+                        <?php if ($journey_type === 'round-trip'): ?>
+                            Outbound Journey - Available Buses
+                        <?php else: ?>
+                            Available Buses
+                        <?php endif; ?>
                         <?php if (!empty($schedules)): ?>
                             <span class="ml-2 bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                 <?php echo count($schedules); ?> Found
@@ -612,8 +1002,9 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
                                         </ul>
 
                                         <?php if ($available_seats >= $passengers): ?>
+                                            <!-- Individual Booking Button -->
                                             <a href="select_seats.php?schedule_id=<?php echo $schedule['id']; ?>&passengers=<?php echo $passengers; ?>"
-                                               class="select-seats-btn w-full text-center py-3 flex items-center justify-center relative overflow-hidden group"
+                                               class="select-seats-btn w-full text-center py-3 flex items-center justify-center relative overflow-hidden group mb-3"
                                                data-schedule-id="<?php echo $schedule['id']; ?>"
                                                data-passengers="<?php echo $passengers; ?>"
                                                data-bus-name="<?php echo $schedule['bus_name']; ?>"
@@ -629,6 +1020,9 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
                                                 </span>
                                                 <span class="absolute bottom-0 left-0 w-full h-1 bg-primary-800 transform origin-left transition-transform duration-500 scale-x-0 group-hover:scale-x-100"></span>
                                             </a>
+                                            
+                                            
+                                            
                                             <?php if (!isset($_SESSION['user_id'])): ?>
                                             <div class="text-xs text-center mt-2 text-primary-600">
                                                 <i class="fas fa-info-circle mr-1"></i> You'll be asked to login or register to complete your booking
@@ -653,17 +1047,21 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
                     <div class="relative w-24 h-24 mx-auto mb-6">
                         <div class="absolute inset-0 bg-gray-200 rounded-full animate-pulse"></div>
                         <div class="absolute inset-0 flex items-center justify-center text-5xl text-gray-400">
-                            <i class="fas fa-bus-alt"></i>
+                            <i class="fas fa-undo"></i>
                         </div>
                     </div>
 
-                    <h3 class="text-2xl font-bold mb-3 text-gray-800">No Buses Found</h3>
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800">No Return Buses Found</h3>
 
                     <p class="text-gray-600 mb-6 max-w-md mx-auto">
-                        We couldn't find any buses for <span class="font-semibold text-primary-700"><?php echo htmlspecialchars($origin); ?></span> to
-                        <span class="font-semibold text-primary-700"><?php echo htmlspecialchars($destination); ?></span> on
-                        <span class="font-semibold text-primary-700"><?php echo $formatted_travel_date; ?></span>.
+                        We couldn't find any return buses for <span class="font-semibold text-secondary-700"><?php echo htmlspecialchars($destination); ?></span> to
+                        <span class="font-semibold text-secondary-700"><?php echo htmlspecialchars($origin); ?></span> on
+                        <span class="font-semibold text-secondary-700"><?php echo !empty($return_date) ? date('l, F j, Y', strtotime($return_date)) : ''; ?></span>.
                     </p>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
 
                     <?php if ($search_performed): ?>
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-w-lg mx-auto text-left">
@@ -691,7 +1089,6 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
                         </a>
                     </div>
                 </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -862,6 +1259,39 @@ $formatted_travel_date = !empty($travel_date) ? date('l, F j, Y', strtotime($tra
             feedback.style.transform = 'translateY(20px)';
             feedback.style.opacity = '0';
         }, 3000);
+    }
+
+    // Switch journey type in search filter
+    function switchFilterJourneyType(type) {
+        const oneWayTab = document.getElementById('filter-one-way-tab');
+        const roundTripTab = document.getElementById('filter-round-trip-tab');
+        const journeyTypeInput = document.getElementById('filter-journey-type');
+        const returnDateGroup = document.getElementById('filter-return-date-group');
+        const returnDateInput = document.getElementById('filter-return-date');
+
+        if (type === 'one-way') {
+            // Update tab styles
+            oneWayTab.className = 'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-300 bg-white text-primary-700 shadow-sm';
+            roundTripTab.className = 'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-300 text-gray-500 hover:text-gray-700';
+            
+            // Hide return date
+            returnDateGroup.style.display = 'none';
+            returnDateInput.removeAttribute('required');
+            
+            // Set journey type
+            journeyTypeInput.value = 'one-way';
+        } else {
+            // Update tab styles
+            oneWayTab.className = 'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-300 text-gray-500 hover:text-gray-700';
+            roundTripTab.className = 'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-300 bg-white text-primary-700 shadow-sm';
+            
+            // Show return date
+            returnDateGroup.style.display = 'block';
+            returnDateInput.setAttribute('required', 'required');
+            
+            // Set journey type
+            journeyTypeInput.value = 'round-trip';
+        }
     }
 </script>
 

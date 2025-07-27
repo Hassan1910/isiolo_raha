@@ -104,6 +104,22 @@ if ($stmt = $conn->prepare($sql)) {
     $stmt->close();
 }
 
+// Check if booking already exists
+$check_sql = "SELECT COUNT(*) FROM bookings WHERE booking_reference = ?";
+$check_stmt = $conn->prepare($check_sql);
+$check_stmt->bind_param("s", $booking_reference);
+$check_stmt->execute();
+$check_stmt->bind_result($existing_count);
+$check_stmt->fetch();
+$check_stmt->close();
+
+if ($existing_count > 0) {
+    // Booking already exists, redirect to confirmation
+    setFlashMessage("info", "This booking has already been processed.");
+    header("Location: booking_confirmation.php?reference=" . $booking_reference);
+    exit();
+}
+
 // Begin transaction
 $conn->begin_transaction();
 

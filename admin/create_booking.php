@@ -150,8 +150,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (!$schedule) {
             $error = "Invalid schedule selected.";
         } else {
-            // Generate booking reference
-            $booking_reference = 'IR' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
+            // Generate unique booking reference
+            $booking_reference = generateUniqueBookingReference($conn);
 
             // Double-check that user_id is set
             if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
@@ -269,7 +269,7 @@ if (!empty($schedule_id) && !$booking_created) {
     // Get schedule details
     $sql = "SELECT s.id, s.departure_time, s.arrival_time, s.fare, s.status,
             r.origin, r.destination, r.distance,
-            b.name AS bus_name, b.type AS bus_type, b.capacity
+            b.name AS bus_name, b.type AS bus_type, b.capacity, b.registration_number
             FROM schedules s
             JOIN routes r ON s.route_id = r.id
             JOIN buses b ON s.bus_id = b.id

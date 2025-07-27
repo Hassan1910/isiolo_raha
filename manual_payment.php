@@ -80,6 +80,7 @@ $schedule_id = $booking_data['schedule_id'];
 $selected_seats = explode(',', $booking_data['selected_seats']);
 $total_amount = $booking_data['total_amount'];
 $passenger_details = $booking_data['passenger_details'];
+$journey_type = isset($booking_data['journey_type']) ? $booking_data['journey_type'] : 'outbound';
 
 // Generate a transaction reference
 $transaction_reference = 'MANUAL-' . $booking_reference . '-' . time();

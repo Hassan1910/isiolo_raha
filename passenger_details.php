@@ -36,6 +36,7 @@ $booking_data = $_SESSION['booking_data'];
 $schedule_id = $booking_data['schedule_id'];
 $selected_seats = explode(',', $booking_data['selected_seats']);
 $total_amount = $booking_data['total_amount'];
+$journey_type = isset($booking_data['journey_type']) ? $booking_data['journey_type'] : 'outbound';
 
 // Get schedule details
 $sql = "SELECT s.id, s.departure_time, s.arrival_time, s.fare, s.status,
@@ -134,8 +135,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Store passenger details in session
         $_SESSION['booking_data']['passenger_details'] = $passenger_details;
 
-        // Generate booking reference
-        $_SESSION['booking_data']['booking_reference'] = 'IR' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
+        // Generate unique booking reference
+        $_SESSION['booking_data']['booking_reference'] = generateUniqueBookingReference($conn);
 
         // Redirect to payment page
         header("Location: payment.php");

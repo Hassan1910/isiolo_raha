@@ -9,34 +9,33 @@
  */
 
 function renderBookingProgress($current_step) {
-    // Define the steps in the booking process
-    $steps = [
-        'search' => [
-            'name' => 'Search',
-            'icon' => 'fa-search',
-            'description' => 'Find your route'
-        ],
-        'select' => [
-            'name' => 'Select',
-            'icon' => 'fa-chair',
-            'description' => 'Choose your seat'
-        ],
-        'details' => [
-            'name' => 'Details',
-            'icon' => 'fa-user',
-            'description' => 'Passenger information'
-        ],
-        'payment' => [
-            'name' => 'Payment',
-            'icon' => 'fa-credit-card',
-            'description' => 'Complete payment'
-        ],
-        'confirm' => [
-            'name' => 'Confirm',
-            'icon' => 'fa-check-circle',
-            'description' => 'Booking confirmed'
-        ]
-    ];
+        $steps = [
+            'search' => [
+                'name' => 'Search',
+                'icon' => 'fa-search',
+                'description' => 'Find your route'
+            ],
+            'select' => [
+                'name' => 'Select',
+                'icon' => 'fa-chair',
+                'description' => 'Choose your seat'
+            ],
+            'details' => [
+                'name' => 'Details',
+                'icon' => 'fa-user',
+                'description' => 'Passenger information'
+            ],
+            'payment' => [
+                'name' => 'Payment',
+                'icon' => 'fa-credit-card',
+                'description' => 'Complete payment'
+            ],
+            'confirm' => [
+                'name' => 'Confirm',
+                'icon' => 'fa-check-circle',
+                'description' => 'Booking confirmed'
+            ]
+        ];
 
     // Find the current step index
     $current_index = array_search($current_step, array_keys($steps));
@@ -166,5 +165,5 @@ function renderBookingProgress($current_step) {
 }
 </style>
 <?php
-}
+    }
 ?>

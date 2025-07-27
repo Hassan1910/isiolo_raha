@@ -29,6 +29,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate first name
     if (empty(trim($_POST["first_name"]))) {
         $first_name_err = "Please enter your first name.";
+    } elseif (!preg_match("/^[a-zA-Z\s]+$/", trim($_POST["first_name"]))) {
+        $first_name_err = "First name should only contain letters and spaces.";
+    } elseif (strlen(trim($_POST["first_name"])) < 2) {
+        $first_name_err = "First name must be at least 2 characters long.";
     } else {
         $first_name = trim($_POST["first_name"]);
     }
@@ -36,6 +40,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate last name
     if (empty(trim($_POST["last_name"]))) {
         $last_name_err = "Please enter your last name.";
+    } elseif (!preg_match("/^[a-zA-Z\s]+$/", trim($_POST["last_name"]))) {
+        $last_name_err = "Last name should only contain letters and spaces.";
+    } elseif (strlen(trim($_POST["last_name"])) < 2) {
+        $last_name_err = "Last name must be at least 2 characters long.";
     } else {
         $last_name = trim($_POST["last_name"]);
     }
@@ -43,6 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate email
     if (empty(trim($_POST["email"]))) {
         $email_err = "Please enter your email.";
+    } elseif (!filter_var(trim($_POST["email"]), FILTER_VALIDATE_EMAIL)) {
+        $email_err = "Please enter a valid email address.";
     } else {
         // Prepare a select statement
         $sql = "SELECT id FROM users WHERE email = ?";
@@ -76,8 +86,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate phone
     if (empty(trim($_POST["phone"]))) {
         $phone_err = "Please enter your phone number.";
+    } elseif (!preg_match("/^[+]?[0-9\s\-\(\)]+$/", trim($_POST["phone"]))) {
+        $phone_err = "Phone number should only contain numbers, spaces, hyphens, parentheses, and plus sign.";
     } else {
-        $phone = trim($_POST["phone"]);
+        // Clean phone number (remove spaces, hyphens, parentheses)
+        $cleaned_phone = preg_replace("/[^0-9+]/", "", trim($_POST["phone"]));
+        
+        // Validate phone number length (assuming Kenyan format)
+        if (strlen($cleaned_phone) < 10 || strlen($cleaned_phone) > 13) {
+            $phone_err = "Please enter a valid phone number (10-13 digits).";
+        } else {
+            $phone = trim($_POST["phone"]);
+        }
     }
 
     // Validate password
@@ -210,32 +230,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <?php endif; ?>
             </div>
 
-            <div class="py-6 px-6">
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" data-validate="true">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" class="py-6 px-6">
                 <!-- First Name -->
-                <div>
+                <div class="mb-4">
                     <label for="first_name" class="form-label">First Name</label>
-                    <input type="text" name="first_name" id="first_name" class="form-input <?php echo (!empty($first_name_err)) ? 'border-red-500' : ''; ?>" value="<?php echo $first_name; ?>" required>
+                    <input type="text" name="first_name" id="first_name" class="form-input <?php echo (!empty($first_name_err)) ? 'border-red-500' : ''; ?>" value="<?php echo $first_name; ?>" placeholder="Enter your first name" required>
                     <?php if (!empty($first_name_err)): ?>
                         <p class="text-red-500 text-xs mt-1"><?php echo $first_name_err; ?></p>
                     <?php endif; ?>
                 </div>
 
                 <!-- Last Name -->
-                <div>
+                <div class="mb-4">
                     <label for="last_name" class="form-label">Last Name</label>
-                    <input type="text" name="last_name" id="last_name" class="form-input <?php echo (!empty($last_name_err)) ? 'border-red-500' : ''; ?>" value="<?php echo $last_name; ?>" required>
+                    <input type="text" name="last_name" id="last_name" class="form-input <?php echo (!empty($last_name_err)) ? 'border-red-500' : ''; ?>" value="<?php echo $last_name; ?>" placeholder="Enter your last name" required>
                     <?php if (!empty($last_name_err)): ?>
                         <p class="text-red-500 text-xs mt-1"><?php echo $last_name_err; ?></p>
                     <?php endif; ?>
                 </div>
-            </div>
-
+            
             <!-- Email -->
             <div class="mb-4">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" id="email" class="form-input <?php echo (!empty($email_err)) ? 'border-red-500' : ''; ?>" value="<?php echo $email; ?>" required>
+                <input type="email" name="email" id="email" class="form-input <?php echo (!empty($email_err)) ? 'border-red-500' : ''; ?>" value="<?php echo $email; ?>" placeholder="Enter your email address" required>
                 <?php if (!empty($email_err)): ?>
                     <p class="text-red-500 text-xs mt-1"><?php echo $email_err; ?></p>
                 <?php endif; ?>
@@ -244,7 +261,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <!-- Phone -->
             <div class="mb-4">
                 <label for="phone" class="form-label">Phone Number</label>
-                <input type="tel" name="phone" id="phone" class="form-input <?php echo (!empty($phone_err)) ? 'border-red-500' : ''; ?>" value="<?php echo $phone; ?>" required>
+                <input type="tel" name="phone" id="phone" class="form-input <?php echo (!empty($phone_err)) ? 'border-red-500' : ''; ?>" value="<?php echo $phone; ?>" placeholder="Enter your phone number (e.g., +254 700 000 000)" required>
                 <?php if (!empty($phone_err)): ?>
                     <p class="text-red-500 text-xs mt-1"><?php echo $phone_err; ?></p>
                 <?php endif; ?>
@@ -254,7 +271,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="mb-4">
                 <label for="password" class="form-label">Password</label>
                 <div class="relative">
-                    <input type="password" name="password" id="password" class="form-input pr-10 <?php echo (!empty($password_err)) ? 'border-red-500' : ''; ?>" required>
+                    <input type="password" name="password" id="password" class="form-input pr-10 <?php echo (!empty($password_err)) ? 'border-red-500' : ''; ?>" placeholder="Enter a strong password" required>
                     <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 focus:outline-none">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -268,7 +285,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="mb-6">
                 <label for="confirm_password" class="form-label">Confirm Password</label>
                 <div class="relative">
-                    <input type="password" name="confirm_password" id="confirm_password" class="form-input pr-10 <?php echo (!empty($confirm_password_err)) ? 'border-red-500' : ''; ?>" required>
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-input pr-10 <?php echo (!empty($confirm_password_err)) ? 'border-red-500' : ''; ?>" placeholder="Confirm your password" required>
                     <button type="button" id="toggle-confirm-password" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 focus:outline-none">
                         <i class="fas fa-eye"></i>
                     </button>

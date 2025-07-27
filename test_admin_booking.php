@@ -24,7 +24,8 @@ echo "<p>Logged in as User ID: " . $_SESSION['user_id'] . "</p>";
 // Test booking creation
 if (isset($_POST['create_test_booking'])) {
     // Generate booking reference
-    $booking_reference = 'TEST' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
+    require_once 'includes/functions.php';
+$booking_reference = generateUniqueBookingReference($conn);
     
     // Get a valid schedule
     $sql = "SELECT s.id, s.fare FROM schedules s WHERE s.status = 'scheduled' LIMIT 1";
