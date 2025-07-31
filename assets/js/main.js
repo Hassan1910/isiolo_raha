@@ -254,15 +254,7 @@ function initFormValidation() {
 
             // Travel date validation
             const travelDate = form.querySelector('#travel_date');
-            const returnDate = form.querySelector('#return_date');
-
-            if (travelDate && returnDate && travelDate.value && returnDate.value) {
-                if (new Date(returnDate.value) < new Date(travelDate.value)) {
-                    isValid = false;
-                    returnDate.classList.add('border-red-500', 'bg-red-50');
-                    showInputError(returnDate, 'Return date cannot be earlier than departure date');
-                }
-            }
+            // Return date validation removed - Only one-way trips supported
 
             if (!isValid) {
                 event.preventDefault();
@@ -498,37 +490,7 @@ function smoothScrollTo(elementId) {
 /**
  * Switch journey type (one-way, round-trip)
  */
-function switchJourneyType(type) {
-    const oneWayTab = document.getElementById('one-way-tab');
-    const roundTripTab = document.getElementById('round-trip-tab');
-    const returnDateGroup = document.getElementById('return-date-group');
-    const journeyTypeInput = document.getElementById('journey_type');
-
-    if (!oneWayTab || !roundTripTab || !returnDateGroup || !journeyTypeInput) return;
-
-    // Update active tab
-    if (type === 'one-way') {
-        oneWayTab.classList.add('active');
-        roundTripTab.classList.remove('active');
-        returnDateGroup.classList.add('hidden');
-        returnDateGroup.querySelector('input').required = false;
-        journeyTypeInput.value = 'one-way';
-    } else {
-        oneWayTab.classList.remove('active');
-        roundTripTab.classList.add('active');
-        returnDateGroup.classList.remove('hidden');
-        returnDateGroup.classList.add('slide-in-right');
-        returnDateGroup.querySelector('input').required = true;
-        journeyTypeInput.value = 'round-trip';
-    }
-
-    // Ensure proper animation by removing and re-adding
-    returnDateGroup.classList.remove('slide-in-right');
-    void returnDateGroup.offsetWidth; // Force reflow
-    if (type === 'round-trip') {
-        returnDateGroup.classList.add('slide-in-right');
-    }
-}
+// switchJourneyType function removed - Only one-way trips supported
 
 /**
  * Swap origin and destination
@@ -575,16 +537,11 @@ function swapDestinations() {
  * Initialize travel date change handler
  */
 function initTravelDateHandler() {
+    // Travel date handler simplified - Only one-way trips supported
     const travelDate = document.getElementById('travel_date');
-    const returnDate = document.getElementById('return_date');
-
-    if (travelDate && returnDate) {
-        travelDate.addEventListener('change', function() {
-            returnDate.min = this.value;
-            if (returnDate.value && returnDate.value < this.value) {
-                returnDate.value = this.value;
-            }
-        });
+    if (travelDate) {
+        // Set minimum date to today
+        travelDate.min = new Date().toISOString().split('T')[0];
     }
 }
 

@@ -7,7 +7,7 @@
 
 // Include configuration if not already included
 if (!defined('PAYSTACK_PUBLIC_KEY')) {
-    require_once __DIR__ . '/../config/config.php';
+    require_once __DIR__ . '/../config/paystack_config.php';
 }
 
 /**

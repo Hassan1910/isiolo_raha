@@ -136,12 +136,9 @@ if ($result && $result->num_rows > 0) {
                 <?php echo $group_booking_message; ?>
             <?php endif; ?>
 
-            <div class="flex justify-center mb-6 rounded-full bg-gray-100 p-1 max-w-md mx-auto">
-                <div class="journey-tab active w-1/2 text-center py-3 px-4 rounded-full cursor-pointer transition-all" id="one-way-tab" onclick="switchJourneyType('one-way')">
-                    <i class="fas fa-long-arrow-alt-right mr-2"></i> One Way
-                </div>
-                <div class="journey-tab w-1/2 text-center py-3 px-4 rounded-full cursor-pointer transition-all" id="round-trip-tab" onclick="switchJourneyType('round-trip')">
-                    <i class="fas fa-exchange-alt mr-2"></i> Round Trip
+            <div class="flex justify-center mb-6">
+                <div class="text-center py-3 px-6 rounded-full bg-primary-600 text-white font-medium">
+                    <i class="fas fa-long-arrow-alt-right mr-2"></i> One Way Journey
                 </div>
             </div>
 
@@ -221,18 +218,7 @@ if ($result && $result->num_rows > 0) {
                         </div>
                     </div>
 
-                    <!-- Return Date (hidden by default) -->
-                    <div class="form-group slide-in-right delay-100 hidden" id="return-date-group">
-                        <label for="return_date" class="form-label flex items-center text-gray-700" style="font-weight: 500; margin-bottom: 0.5rem; color: #374151;">
-                            <i class="fas fa-calendar-check text-primary-600 mr-2"></i> Return Date
-                        </label>
-                        <div class="relative mt-1">
-                            <div class="form-icon-wrapper" style="position: absolute; top: 0; bottom: 0; left: 0; display: flex; align-items: center; padding-left: 1rem; pointer-events: none;">
-                                <i class="fas fa-calendar-check form-icon" style="color: #16a34a; font-size: 1.25rem;"></i>
-                            </div>
-                            <input type="date" name="return_date" id="return_date" class="form-input pl-14 w-full" min="<?php echo date('Y-m-d'); ?>" style="width: 100%; padding: 0.75rem 1rem 0.75rem 3.5rem; border-radius: 0.5rem; border: 1px solid #e5e7eb; background-color: #f9fafb; transition: all 0.2s; color: #1f2937;">
-                        </div>
-                    </div>
+
 
                     <!-- Number of Passengers -->
                     <div class="form-group slide-in-left delay-200 md:col-span-2 md:col-span-1">

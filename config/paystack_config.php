@@ -9,6 +9,28 @@
 // Include main config file for Paystack constants
 require_once __DIR__ . '/config.php';
 
+// Environment-aware Paystack configuration
+if (defined('IS_PRODUCTION') && IS_PRODUCTION) {
+    // Load production Paystack configuration
+    if (file_exists(__DIR__ . '/paystack_production.php')) {
+        require_once __DIR__ . '/paystack_production.php';
+    } else {
+        // Fallback to test keys with warning
+        error_log('WARNING: Production environment detected but paystack_production.php not found. Using test keys.');
+        define('PAYSTACK_PUBLIC_KEY', 'pk_test_c7f8306f56b3fe44259a7e8d8a025c3f69e8102b');
+        define('PAYSTACK_SECRET_KEY', 'sk_test_36c2a669d1feb76b51dd0bff57eccdfebea18350');
+        define('PAYSTACK_CURRENCY', 'KES');
+        define('PAYSTACK_ENVIRONMENT', 'test');
+    }
+} else {
+    // Development/test environment
+    define('PAYSTACK_PUBLIC_KEY', 'pk_test_c7f8306f56b3fe44259a7e8d8a025c3f69e8102b');
+    define('PAYSTACK_SECRET_KEY', 'sk_test_36c2a669d1feb76b51dd0bff57eccdfebea18350');
+    define('PAYSTACK_CURRENCY', 'KES');
+    define('PAYSTACK_ENVIRONMENT', 'test');
+    define('PAYSTACK_API_URL', 'https://api.paystack.co');
+}
+
 // Paystack API Configuration
 define('PAYSTACK_BASE_URL', 'https://api.paystack.co');
 

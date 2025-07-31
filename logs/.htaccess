@@ -1,0 +1,9 @@
+# Protect logs directory
+Order Allow,Deny
+Deny from all
+
+# Prevent access to log files
+<Files "*.log">
+    Order Allow,Deny
+    Deny from all
+</Files>

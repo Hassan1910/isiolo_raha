@@ -679,11 +679,6 @@ ob_start();
                                     <a href="schedules.php?action=edit&id=<?php echo $schedule['id']; ?>" class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md mr-1 inline-flex items-center">
                                         <i class="fas fa-edit mr-1"></i> Edit
                                     </a>
-                                    <?php if ($schedule['status'] != 'cancelled' && $schedule['booked_seats'] > 0): ?>
-                                        <a href="schedules.php?action=cancel&id=<?php echo $schedule['id']; ?>" class="text-yellow-600 hover:text-yellow-900 bg-yellow-100 hover:bg-yellow-200 px-3 py-1 rounded-md mr-1 inline-flex items-center" onclick="return confirm('Are you sure you want to cancel this schedule? This will affect existing bookings.');">
-                                            <i class="fas fa-ban mr-1"></i> Cancel
-                                        </a>
-                                    <?php endif; ?>
                                     <?php if ($schedule['booked_seats'] == 0): ?>
                                         <a href="schedules.php?action=delete&id=<?php echo $schedule['id']; ?>" class="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md inline-flex items-center" onclick="return confirm('Are you sure you want to delete this schedule?');">
                                             <i class="fas fa-trash mr-1"></i> Delete

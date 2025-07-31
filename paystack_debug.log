@@ -220,3 +220,15 @@
 [2025-07-25 15:49:14] [DB] Payment inserted for booking ID: 54
 [2025-07-25 15:49:14] [DB] About to commit transaction
 [2025-07-25 15:49:14] [DB] Transaction committed successfully
+[2025-07-29 12:25:45] [GET] {"reference":"IRBC2B418B1"}
+[2025-07-29 12:25:45] [SESSION] {"user_id":5,"user_email":"adanhassan1910@gmail.com","user_name":"hassan adan","user_role":"user","booking_data":{"schedule_id":172,"selected_seats":"A5","total_amount":"700","journey_type":"outbound","passenger_details":[{"seat":"A5","name":"hassan adan","phone":"0734567765","id_number":"5432"}],"booking_reference":"IRBC2B418B1"}}
+[2025-07-29 12:25:45] [VERIFICATION] Verifying payment with reference: IRBC2B418B1
+[2025-07-29 12:25:45] [TEST_MODE] Using test mode for verification
+[2025-07-29 12:25:45] [VERIFICATION_RESULT] {"status":true,"data":{"status":"success","reference":"IRBC2B418B1","amount":70000}}
+[2025-07-29 12:25:45] [DB] About to start database transaction
+[2025-07-29 12:25:45] [DB] Transaction started
+[2025-07-29 12:25:45] [DB] Processing passenger: hassan adan
+[2025-07-29 12:25:45] [DB] Booking inserted with ID: 56
+[2025-07-29 12:25:45] [DB] Payment inserted for booking ID: 56
+[2025-07-29 12:25:45] [DB] About to commit transaction
+[2025-07-29 12:25:45] [DB] Transaction committed successfully
